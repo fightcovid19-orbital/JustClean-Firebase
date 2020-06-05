@@ -20,4 +20,28 @@ exports.getCleaners = functions.https.onRequest((req, res) => {
             return res.json(cleaners);
         })
         .catch(err => console.error(err))
-})
+});
+
+exports.createCleaner = functions.https.onRequest((req, res) => {
+
+    if (req.method !== 'POST') {
+        return res.status(400).json({ error: 'Method not allowed' })
+    };
+
+    const newCleaner = {
+        cleanerHandle: req.body.cleanerHandle,
+        createdAt: admin.firestore.Timestamp.fromDate(new Date()),
+        hiredCount: 0,
+        likeCount: 0,
+        unlikeCount: 0
+    };
+
+    admin.firestore().collection('cleaners').add(newCleaner)
+        .then(doc => {
+            res.json({ message: ` cleaner ${doc.id} created successfully` })
+        })
+        .catch(err => {
+            res.status(500).json({ error: 'something went wrong' });
+            console.error(err);
+        });
+});
