@@ -10,8 +10,7 @@ firebase.initializeApp(config);
 
 const FBAuth = require('./util/fbAuth');
 
-
-app.get('/cleaners',(req, res) => {
+app.get('/cleaners', (req, res) => {
     db.collection('cleaners').get()
         .then(data => {
             let cleaners = [];
@@ -30,7 +29,6 @@ app.get('/cleaners',(req, res) => {
         .catch(err => console.error(err))
 });
 
-
 // Comment route
 // get cleanner's all comment
 app.get('/comments', getAllComments);
@@ -42,8 +40,5 @@ app.post('/comment', FBAuth, createComment);
 app.post('/signup', signup);
 // login
 app.post('/login', login);
-
-
-
 
 exports.api = functions.https.onRequest(app);
