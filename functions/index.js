@@ -3,14 +3,11 @@ const admin = require('firebase-admin');
 
 admin.initializeApp();
 
-// // Create and Deploy Your First Cloud Functions
-// // https://firebase.google.com/docs/functions/write-firebase-functions
-//
-// exports.helloWorld = functions.https.onRequest((request, response) => {
-//  response.send("Hello from Firebase!");
-// });
+const express = require('express');
+const app = express();
 
-exports.getCleaners = functions.https.onRequest((req, res) => {
+// get all the cleaners
+app.get('/cleaners', (req, res) => {
     admin.firestore().collection('cleaners').get()
         .then(data => {
             let cleaners = [];
@@ -22,14 +19,14 @@ exports.getCleaners = functions.https.onRequest((req, res) => {
         .catch(err => console.error(err))
 });
 
-exports.createCleaner = functions.https.onRequest((req, res) => {
-
+// create a new cleaner
+app.post('/cleaner', (req, res) => {
     if (req.method !== 'POST') {
         return res.status(400).json({ error: 'Method not allowed' })
     };
     const newCleaner = {
         cleanerHandle: req.body.cleanerHandle,
-        createdAt: admin.firestore.Timestamp.fromDate(new Date()),
+        createdAt: new Date().toISOString(),
         hiredCount: 0,
         likeCount: 0,
         unlikeCount: 0
@@ -44,7 +41,7 @@ exports.createCleaner = functions.https.onRequest((req, res) => {
         });
 });
 
-// get cleanner's all comment
+// get cleaner's all comment
 exports.getComments = functions.https.onRequest((req, res) => {
     admin.firestore()
         .collection('comments')
@@ -62,7 +59,7 @@ exports.getComments = functions.https.onRequest((req, res) => {
 
 // create comment
 exports.createComment = functions.https.onRequest((req, res) => {
-     
+
     const newComment = {
         body: req.body.body,
         userHandle: req.body.userHandle,
@@ -73,10 +70,12 @@ exports.createComment = functions.https.onRequest((req, res) => {
         .collection('comments')
         .add(newComment)
         .then(doc => {
-            res.json({message: `comment ${doc.id} created successfully`});
+            res.json({ message: `comment ${doc.id} created successfully` });
         })
         .catch(err => {
-            res.status(500).json({error: 'something went wrong'});
+            res.status(500).json({ error: 'something went wrong' });
             console.error(err);
-        });       
+        });
 });
+
+exports.api = functions.https.onRequest(app);
