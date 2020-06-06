@@ -4,7 +4,7 @@ const app = require('express')();
 
 const { getAllComments, createComment } = require('./handlers/comments');
 const { signup, login } = require('./handlers/users');
-const { getCleaners } = require('./handles/cleaners')
+const { getCleaners } = require('./handlers/cleaners')
 
 const FBAuth = require('./util/fbAuth');
 
