@@ -45,3 +45,40 @@ exports.createCleaner = functions.https.onRequest((req, res) => {
             console.error(err);
         });
 });
+
+// get cleanner's all comment
+exports.getComments = functions.https.onRequest((req, res) => {
+    admin.firestore()
+        .collection('comments')
+        .get()
+        .then(data => {
+            let comments = [];
+            data.forEach(doc => {
+                comments.push(doc.data());
+            });
+            return res.json(comments);
+        })
+        .catch(err => console.err(err));
+});
+
+
+// create comment
+exports.createComment = functions.https.onRequest((req, res) => {
+     
+    const newComment = {
+        body: req.body.body,
+        userHandle: req.body.userHandle,
+        createdAt: admin.firestore.Timestamp.fromDate(new Date())
+    };
+
+    admin.firestore()
+        .collection('comments')
+        .add(newComment)
+        .then(doc => {
+            res.json({message: `comment ${doc.id} created successfully`});
+        })
+        .catch(err => {
+            res.status(500).json({error: 'something went wrong'});
+            console.error(err);
+        });       
+});
