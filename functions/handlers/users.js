@@ -58,8 +58,12 @@ exports.signup = (req, res) => {
                             return res.status(201).json({token});
                         })
                         .catch(err => {
-                            console.error(err);
-                            return res.status(500).json({error: err.code});
+                            if (err.code === "auth/email-already-in-use") {
+                                return res.status(400).json({ email: "Email is already is use" });
+                            } else {
+                                console.error(err);
+                                return res.status(500).json({error: err.code});
+                            }
                         });
                 }
             }); 
@@ -93,8 +97,12 @@ exports.signup = (req, res) => {
                             return res.status(201).json({token});
                         })
                         .catch(err => {
-                            console.error(err);
-                            return res.status(500).json({error: err.code});
+                            if (err.code === "auth/email-already-in-use") {
+                                return res.status(400).json({ email: "Email is already is use" });
+                            } else {
+                                console.error(err);
+                                return res.status(500).json({error: err.code});
+                            }
                         });
                 }
             }); 
