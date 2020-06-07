@@ -26,7 +26,7 @@ exports.createComment = (req, res) => {
 
     const newComment = {
         body: req.body.body,
-        userHandle: req.user.cleanerName,/////////////
+        userHandle: req.user.customerName,/////////////
         createdAt: new Date().toISOString()
     };
 

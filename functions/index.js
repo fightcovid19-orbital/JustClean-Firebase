@@ -3,8 +3,8 @@ const functions = require('firebase-functions');
 const app = require('express')();
 
 const { getAllComments, createComment } = require('./handlers/comments');
-const { signup, login } = require('./handlers/users');
-const { getCleaners } = require('./handlers/cleaners')
+const { signup, login, uploadImage } = require('./handlers/users');
+const { getCleaners } = require('./handlers/cleaners');
 
 const FBAuth = require('./util/fbAuth');
 
@@ -19,6 +19,8 @@ app.post('/comment', FBAuth, createComment);
 app.post('/signup', signup);
 // login
 app.post('/login', login);
+// upload image
+app.post('/user/image',FBAuth ,uploadImage);
 
 // Cleaner route
 app.get('/cleaners', getCleaners);

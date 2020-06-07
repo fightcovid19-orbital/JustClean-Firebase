@@ -1,4 +1,4 @@
-const { admin } = require('./admin');
+const { admin, db } = require('./admin');
 
 module.exports = (req, res, next) => {
     let tokenId;
@@ -14,13 +14,13 @@ module.exports = (req, res, next) => {
         .verifyIdToken(tokenId)
         .then(decodedToken => {
             req.user = decodedToken;
-            return db.collection('cleaners')///////////////////
-                .where('cleanerId',  '==', req.user.uid)
+            return db.collection('customers')////////////
+                .where('customerId',  '==', req.user.uid)
                 .limit(1)
                 .get();
         })
         .then (data => {
-            req.user.cleanerName = data.docs[0].data().cleanerName;
+            req.user.customerName = data.docs[0].data().customerName;
             return next();
         })
         .catch(err => {

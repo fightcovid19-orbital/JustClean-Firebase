@@ -30,21 +30,28 @@ exports.validateSignupData = data => {
         errors.password = "Must not be empty";
     }
 
+    //check type
+    if (isEmpty(data.type)) {
+        errors.type = "Must not be empty";
+    } else if (data.type !== 'cleaner' && data.type !== 'customer') {
+        errors.type = "Wrong type of User given";
+    }
+
     // comfirm password
     if (data.comfirmPassword !== data.password) {
         errors.comfirmPassword = "Password not match";
     }
 
     //Cleaner Name
-    if (isEmpty(data.cleanerName)) {
-        errors.cleanerName = "Must not be Empty";
+    if (isEmpty(data.userName)) {
+        errors.userName = "Must not be Empty";
     }
 
     return { 
         errors,
         valid: Object.keys(errors).length === 0
     }
-}
+};
 
 exports.validateLoginData = data => {
     // Validation
@@ -56,6 +63,12 @@ exports.validateLoginData = data => {
         errors.email = 'Must be a valid email address';
     }
 
+    if (isEmpty(data.type)) {
+        errors.type = "Must not be empty";
+    } else if (data.type !== 'cleaner' && data.type !== 'customer') {
+        errors.type = "Wrong type of User given";
+    }
+
     //password
     if (isEmpty(data.password)) {
         errors.password = "Must not be empty";
@@ -65,4 +78,4 @@ exports.validateLoginData = data => {
         errors,
         valid: Object.keys(errors).length === 0
     }
-}
+};
