@@ -2,8 +2,18 @@ const functions = require('firebase-functions');
 
 const app = require('express')();
 
-const { getAllComments, createComment } = require('./handlers/comments');
-const { signup, login } = require('./handlers/users');
+const {
+    getAllComments, 
+    createComment, 
+    getComment,
+    custReplyComment ,
+    cleanerReplyComment
+} = require('./handlers/comments');
+
+const { 
+    signup, 
+    login 
+} = require('./handlers/users');
 
 const { 
     getCleaners, 
@@ -26,6 +36,12 @@ const cleanerFbAuth = require('./util/cleanerFbAuth');
 app.get('/comments', getAllComments);
 // create comment
 app.post('/comment', custFbAuth, createComment);
+// get cleaner's one comment
+app.get('/comment/:commentId', getComment);
+// customer create replies
+app.post('/comment/:commentId/reply', custFbAuth, custReplyComment);
+// cleaner create replies
+app.post('/comment/:commentId/reply', custFbAuth, cleanerReplyComment);
 
 //User route
 // Signup
@@ -39,15 +55,15 @@ app.post('/customer/image', custFbAuth, uploadCustImage);
 // customer details
 app.post('/customer', custFbAuth, addCustDetails);
 // own details
-app.get('customer', custFbAuth, getAuthenticatedCust);
+app.get('/customer', custFbAuth, getAuthenticatedCust);
 
 // Cleaner route
 app.get('/cleaners', getCleaners);
 // upload image
 app.post('/cleaner/image', cleanerFbAuth, uploadCleanerImage);
 // cleaner details
-app.post('/customer', cleanerFbAuth, addCleanerDetails);
+app.post('/cleaner', cleanerFbAuth, addCleanerDetails);
 // own details
-app.get('customer', cleanerFbAuth, getAuthenticatedCleaner);
+app.get('/cleaner', cleanerFbAuth, getAuthenticatedCleaner);
 
 exports.api = functions.https.onRequest(app);

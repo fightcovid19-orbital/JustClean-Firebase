@@ -80,7 +80,7 @@ exports.uploadCleanerImage = (req, res) => {
 exports.addCleanerDetails = (req, res) => {
     let cleanerDetails = reduceUserDetails(req.body);
 
-    db.doc(`/customers/${req.user.customerName}`)
+    db.doc(`/cleaners/${req.user.cleanerName}`)
         .update(cleanerDetails)
         .then(() => {
             return res.json({ message: 'added successfully'});
@@ -88,31 +88,24 @@ exports.addCleanerDetails = (req, res) => {
         .catch(err => {
             console.error(err);
             return res.status(500).json({error: err.code});
-        })
+        });
 };
 
 // Get own details
-exports.getAuthenticatedCust = (req, res) => {
+exports.getAuthenticatedCleaner = (req, res) => {
     let cleanerData = {};
     db.doc(`/cleaners/${req.user.cleanerName}`)
         .get()
         .then(doc => {
             if (doc.exists) {
-                custData.credentials = doc.data();
-                return db.collections('likes')
-                    .where(cleanerName, '==', req.user.cleanerName)
-                    .get()
+                cleanerData.credentials = doc.data();
+                return res.json(cleanerData);
             }
-        })
-        .then(data => {
-            cleanerData.likes = [];
-            data.forEach(doc => {
-                cleanerData.likes.push(doc.data());
-            });
-            return res.json(cleanerData);
         })
         .catch(err => {
             console.error(err);
             return status(500).json({ error: err.code});
         })
 };
+
+//get one cleaner

@@ -67,7 +67,7 @@ exports.addCustDetails = (req, res) => {
         .catch(err => {
             console.error(err);
             return res.status(500).json({error: err.code});
-        })
+        });
 };
 
 // Get own details
@@ -75,14 +75,26 @@ exports.getAuthenticatedCust = (req, res) => {
     let custData = {};
     db.doc(`/customers/${req.user.customerName}`)
         .get()
-        .then(doc => {
+        .then((doc) => {
             if (doc.exists) {
                 custData.credentials = doc.data();
-                return res.json(custData);
+                return db.collection("likes")
+                    .where("customerName", "==", req.user.customerName)
+                    .get();
             }
+        })
+        .then(data => {
+            custData.likes = [];
+            data.forEach(doc => {
+                custData.likes.push(doc.data());
+            });
+            return res.json(custData);
         })
         .catch(err => {
             console.error(err);
-            return status(500).json({ error: err.code});
-        })
+            return res.status(500).json({ error: err.code});
+        });
 };
+
+// like cleaner
+// unlike cleaner
