@@ -1,6 +1,8 @@
 const { admin, db } = require('../util/admin');
 const config = require('../util/config');
+const { reduceUserDetails } = require('../util/validators');
 
+// get all cleaners
 exports.getCleaners = (req, res) => {
     db.collection('cleaners').get()
         .then(data => {
@@ -20,6 +22,7 @@ exports.getCleaners = (req, res) => {
         .catch(err => console.error(err));
 };
 
+// upload image
 exports.uploadCleanerImage = (req, res) => {
     const BusBoy = require('busboy');
     const path = require('path');
@@ -71,4 +74,45 @@ exports.uploadCleanerImage = (req, res) => {
     });
 
     busboy.end(req.rawBody);
+};
+
+// upload details
+exports.addCleanerDetails = (req, res) => {
+    let cleanerDetails = reduceUserDetails(req.body);
+
+    db.doc(`/customers/${req.user.customerName}`)
+        .update(cleanerDetails)
+        .then(() => {
+            return res.json({ message: 'added successfully'});
+        })
+        .catch(err => {
+            console.error(err);
+            return res.status(500).json({error: err.code});
+        })
+};
+
+// Get own details
+exports.getAuthenticatedCust = (req, res) => {
+    let cleanerData = {};
+    db.doc(`/cleaners/${req.user.cleanerName}`)
+        .get()
+        .then(doc => {
+            if (doc.exists) {
+                custData.credentials = doc.data();
+                return db.collections('likes')
+                    .where(cleanerName, '==', req.user.cleanerName)
+                    .get()
+            }
+        })
+        .then(data => {
+            cleanerData.likes = [];
+            data.forEach(doc => {
+                cleanerData.likes.push(doc.data());
+            });
+            return res.json(cleanerData);
+        })
+        .catch(err => {
+            console.error(err);
+            return status(500).json({ error: err.code});
+        })
 };

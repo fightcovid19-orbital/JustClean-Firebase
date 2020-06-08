@@ -1,6 +1,8 @@
 const { admin, db } = require('../util/admin');
 const config = require('../util/config');
+const { reduceUserDetails } = require('../util/validators');
 
+// upload image
 exports.uploadCustImage = (req, res) => {
     const BusBoy = require('busboy');
     const path = require('path');
@@ -51,4 +53,36 @@ exports.uploadCustImage = (req, res) => {
     });
 
     busboy.end(req.rawBody);
+};
+
+//upload details
+exports.addCustDetails = (req, res) => {
+    let custDetails = reduceUserDetails(req.body);
+
+    db.doc(`/customers/${req.user.customerName}`)
+        .update(custDetails)
+        .then(() => {
+            return res.json({ message: 'added successfully'});
+        })
+        .catch(err => {
+            console.error(err);
+            return res.status(500).json({error: err.code});
+        })
+};
+
+// Get own details
+exports.getAuthenticatedCust = (req, res) => {
+    let custData = {};
+    db.doc(`/customers/${req.user.customerName}`)
+        .get()
+        .then(doc => {
+            if (doc.exists) {
+                custData.credentials = doc.data();
+                return res.json(custData);
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            return status(500).json({ error: err.code});
+        })
 };
