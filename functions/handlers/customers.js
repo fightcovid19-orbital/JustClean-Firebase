@@ -1,26 +1,7 @@
 const { admin, db } = require('../util/admin');
 const config = require('../util/config');
 
-exports.getCleaners = (req, res) => {
-    db.collection('cleaners').get()
-        .then(data => {
-            let cleaners = [];
-            data.forEach(doc => {
-                cleaners.push({
-                    cleanerId: doc.id,
-                    cleanerName: doc.data().cleanerName,
-                    hiredCount: doc.data().hiredCount,
-                    likeCount: doc.data().likeCount,
-                    unlikeCount: doc.data().unlikeCount,
-                    createdAt: doc.data().createdAt,
-                });
-            });
-            return res.json(cleaners);
-        })
-        .catch(err => console.error(err));
-};
-
-exports.uploadCleanerImage = (req, res) => {
+exports.uploadCustImage = (req, res) => {
     const BusBoy = require('busboy');
     const path = require('path');
     const os = require('os');
@@ -36,8 +17,7 @@ exports.uploadCleanerImage = (req, res) => {
             return res.status(400).json({error: 'Wrong file type'});
         }
         
-        const splitImageFileName = filename.split('.');
-        const imageExtension = splitImageFileName[splitImageFileName.length - 1];
+        const imageExtension = filename.split('.')[filename.split('.').length - 1];
         imageFileName = `${Math.round(Math.random() * 1000000000000)}.${imageExtension}`;
         const filepath = path.join(os.tmpdir(), imageFileName);
         imageToBeUploaded = { filepath, mimetype };
@@ -58,7 +38,7 @@ exports.uploadCleanerImage = (req, res) => {
             })
             .then(()=> {
                 const imageUrl = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${imageFileName}?alt=media`;
-                return db.doc(`/cleaners/${req.user.cleanerName}`).update({imageUrl});
+                return db.doc(`/customers/${req.user.customerName}`).update({imageUrl});
             })
             .then(() => {
                 return res.json({ message: 'Image uploaded successfully'})
