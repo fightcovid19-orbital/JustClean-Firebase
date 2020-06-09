@@ -24,15 +24,24 @@ exports.createComment = (req, res) => {
         return res.status(400).json({body: 'Must not be empty'});
     }
 
-    const newComment = {
-        body: req.body.body,
-        userHandle: req.user.customerName,
-        userImage: req.user.imageUrl,
-        createdAt: new Date().toISOString()
-    };
+    db.doc(`/cleaners/${req.body.commentOn}`)
+        .get()
+        .then(doc => {
+            if(!doc.exists) {
+                return res.status(404).json({ error: 'Cleaner does not exist'})
+            }
 
-    db.collection('comments')
-        .add(newComment)
+            const newComment = {
+                body: req.body.body,
+                userHandle: req.user.customerName,
+                userImage: req.user.imageUrl,
+                createdAt: new Date().toISOString(),
+                commentOn: req.body.commentOn
+            };
+
+            return db.collection('comments')
+                .add(newComment)
+        })
         .then(doc => {
             const resComment = newComment;
             resComment.commentId = doc.id
@@ -74,8 +83,6 @@ exports.getComment = (req, res) => {
         })
 };
 
-// delete comment
-
 // customer reply comment
 exports.custReplyComment = (req, res) => {
     if(req.body.body.trim() === '') {
@@ -97,7 +104,10 @@ exports.custReplyComment = (req, res) => {
                 return res.status(404).json({ error: 'Comment not found' });
             }
 
-            return db.collection('replies')
+            return doc.ref.update({ replyCount: doc.data().replyCount + 1})
+        })
+        .then(() => {
+            return db.collection('custReplies')
                 .add(newReply);
         })
         .then(() => {
@@ -130,7 +140,10 @@ exports.cleanerReplyComment = (req, res) => {
                 return res.status(404).json({ error: 'Comment not found' });
             }
 
-            return db.collection('replies')
+            return doc.ref.update({ replyCount: doc.data().replyCount + 1})
+        })
+        .then(() => {
+            return db.collection('cleanerReplies')
                 .add(newReply);
         })
         .then(() => {

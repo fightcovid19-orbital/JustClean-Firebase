@@ -1,5 +1,5 @@
 const functions = require('firebase-functions');
-
+const { db } = require('./util/admin');
 const app = require('express')();
 
 const {
@@ -14,7 +14,8 @@ const {
 const { 
     signup, 
     login,
-    deleteCleaner
+    deleteCleaner,
+    markNotificationRead
 } = require('./handlers/users');
 
 const { 
@@ -25,7 +26,8 @@ const {
     likeCleaner,
     cancleLikeCleaner,
     unlikeCleaner,
-    cancleUnlikeCleaner
+    cancleUnlikeCleaner,
+    getCleaner
 } = require('./handlers/cleaners');
 
 const { 
@@ -47,7 +49,7 @@ app.get('/comment/:commentId', getComment);
 // customer create replies
 app.post('/comment/:commentId/reply', custFbAuth, custReplyComment);
 // cleaner create replies
-app.post('/comment/:commentId/reply', custFbAuth, cleanerReplyComment);
+app.post('/comment/:commentId/reply', cleanerFbAuth, cleanerReplyComment);
 // delete comment;
 app.delete('/comment/:commentId', custFbAuth, deleteComment);
 
@@ -66,9 +68,14 @@ app.post('/customer/image', custFbAuth, uploadCustImage);
 app.post('/customer', custFbAuth, addCustDetails);
 // own details
 app.get('/customer', custFbAuth, getAuthenticatedCust);
+// mark notification read
+app.post('cleanerNotifications', custFbAuth, markNotificationRead);
 
 // Cleaner route
+// get all cleaners
 app.get('/cleaners', getCleaners);
+// get cleaner
+app.get('/cleaner/:cleanerName', getCleanerDetails);
 // upload image
 app.post('/cleaner/image', cleanerFbAuth, uploadCleanerImage);
 // cleaner details
@@ -83,5 +90,130 @@ app.get('/cleaner/:cleanerName/cancleLike', custFbAuth, cancleLikeCleaner);
 app.get('/cleaner/:cleanerName/unlike', custFbAuth, unlikeCleaner);
 // cancle Unlike cleaner
 app.get('/cleaner/:cleanerName/cancleUnlike', custFbAuth, cancleUnlikeCleaner);
+// mark notification read
+app.post('cleanerNotifications', cleanerFbAuth, markNotificationRead);
+
 
 exports.api = functions.https.onRequest(app);
+
+exports.createNotificationOnLike = functions
+    .firestore.document('likes/{id}')
+    .onCreate(snapshot => {
+        db.doc(`/cleaners/${snapshot.data().cleanerName}`)
+            .get()
+            .then(doc => {
+                if (doc.exists) {
+                    return db.doc(`/notifications/${snapshot.id}`)
+                        .set({
+                            createdAt: new Date().toISOString(),
+                            recipient: doc.data().cleanerName,
+                            sender: snapshot.data().userHandle,
+                            type: 'like',
+                            read: false,
+                            cleanerName: doc.cleanerName
+                        });
+                }
+            })
+            .then(() => {
+                return;
+            })
+            .catch(err => {
+                console.error(err);
+                return;
+            })
+    });
+
+exports.deleteNotificationOnCancleLike = functions
+    .firestore.document('likes/{id}')
+    .onDelete(snapshot => {
+        db.doc(`/notifications/${snapshot.id}`)
+            .delete()
+            .then(() => {
+                return;
+            })
+            .catch(err => {
+                console.error(err);
+                return;
+            })
+    });
+
+exports.createNotificationOnCustReply = functions
+    .firestore.document('custReplies/{id}')
+    .onCreate(snapshot => {
+        db.doc(`/comments/${snapshot.data().commentId}`)
+            .get()
+            .then(doc => {
+                if (doc.exists) {
+                    return db.doc(`/notifications/${snapshot.id}`)
+                        .set({
+                            createdAt: new Date().toISOString(),
+                            recipient: doc.data().userHandle,
+                            sender: snapshot.data().userHandle,
+                            type: 'reply',
+                            read: false,
+                            commentId: doc.id
+                        });
+                }
+            })
+            .then(() => {
+                return;
+            })
+            .catch(err => {
+                console.error(err);
+                return;
+            })
+    });
+
+exports.createNotificationOnCleanerReply = functions
+    .firestore.document('cleanerReplies/{id}')
+    .onCreate(snapshot => {
+        db.doc(`/comments/${snapshot.data().commentId}`)
+            .get()
+            .then(doc => {
+                if (doc.exists) {
+                    return db.doc(`/notifications/${snapshot.id}`)
+                        .set({
+                            createdAt: new Date().toISOString(),
+                            recipient: doc.data().userHandle,
+                            sender: snapshot.data().userHandle,
+                            type: 'reply',
+                            read: false,
+                            commentId: doc.id
+                        });
+                }
+            })
+            .then(() => {
+                return;
+            })
+            .catch(err => {
+                console.error(err);
+                return;
+            })
+    });
+
+exports.createNotificationOnComment = functions
+    .firestore.document('comments/{id}')
+    .onCreate(snapshot => {
+        db.doc(`/comments/${snapshot.data().commentId}`)
+            .get()
+            .then(doc => {
+                if (doc.exists) {
+                    return db.doc(`/notifications/${snapshot.id}`)
+                        .set({
+                            createdAt: new Date().toISOString(),
+                            recipient: doc.data().commentOn,
+                            sender: snapshot.data().userHandle,
+                            type: 'comment',
+                            read: false,
+                            commentId: doc.id
+                        });
+                }
+            })
+            .then(() => {
+                return;
+            })
+            .catch(err => {
+                console.error(err);
+                return;
+            })
+    });

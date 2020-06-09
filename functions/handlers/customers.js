@@ -88,6 +88,24 @@ exports.getAuthenticatedCust = (req, res) => {
             data.forEach(doc => {
                 custData.likes.push(doc.data());
             });
+            return db.collection('notifications')
+                .where('recipient', '==', req.user.customerName)
+                .orderBy('createdAt', 'desc')
+                .limit(10)
+                .get();
+        })
+        .then(data => {
+            custData.notifications =[];
+            data.forEach(doc => {
+                custData.notifications.push({
+                    recipient: doc.data().recipient,
+                    sender: doc.data().sender,
+                    createdAt: doc.data().createdAt,
+                    type: doc.data().type,
+                    read: doc.data().read,
+                    notificationId: doc.id
+                })
+            });
             return res.json(custData);
         })
         .catch(err => {

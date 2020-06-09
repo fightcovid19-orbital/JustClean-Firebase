@@ -173,3 +173,19 @@ exports.deleteCleaner = (req, res) => {
             }
         });
 };
+
+exports.markNotificationRead = (req, res) => {
+    let batch = db.batch();
+    req.body.forEach(notificationId => {
+        const notification = db.doc(`notifications/${notificationId}`);
+        batch.update(notification, { read: true });
+    });
+    batch.commit()
+        .then(() => {
+            return res.json({ messgae: "Notifications mark read"})
+        })
+        .catch(err => {
+            console.error(err);
+            return res.status(500).json({ error: err.code });
+        })
+}

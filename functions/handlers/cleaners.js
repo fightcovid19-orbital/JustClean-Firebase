@@ -99,8 +99,35 @@ exports.getAuthenticatedCleaner = (req, res) => {
         .then(doc => {
             if (doc.exists) {
                 cleanerData.credentials = doc.data();
-                return res.json(cleanerData);
+                return db.collection("likes")
+                    .where("cleanerName", "==", req.user.cleanerName)
+                    .get();
             }
+        })
+        .then(data => {
+            cleanerData.likes = [];
+            data.forEach(doc => {
+                cleanerData.likes.push(doc.data());
+            });
+            return db.collection('notifications')
+                .where('recipient', '==', req.user.cleanerName)
+                .orderBy('createdAt', 'desc')
+                .limit(10)
+                .get();
+        })
+        .then(data => {
+            cleanerData.notifications =[];
+            data.forEach(doc => {
+                cleanerData.notifications.push({
+                    recipient: doc.data().recipient,
+                    sender: doc.data().sender,
+                    createdAt: doc.data().createdAt,
+                    type: doc.data().type,
+                    read: doc.data().read,
+                    notificationId: doc.id
+                })
+            });
+            return res.json(cleanerData);
         })
         .catch(err => {
             console.error(err);
@@ -109,6 +136,36 @@ exports.getAuthenticatedCleaner = (req, res) => {
 };
 
 //get one cleaner
+exports.getCleanerDetails = (req, res) => {
+    let cleanerData = {};
+    db.doc(`/cleaners/${req.params.cleanerName}`)
+        .get()
+        .then(doc => {
+            if (doc.exists) {
+                cleanerData.user = doc.data();
+                return db.collection('comments')
+                    .where('userHandle', '==', req.params.commentOn)
+                    .orderBy('createdAt', desc)
+                    .get()
+            }
+        })
+        .then(data => {
+            userData.comments = [];
+            data.forEach(doc => {
+                userdata.comments.push({
+                    body: doc.data().createdAt,
+                    userHandle: doc.data().userHandle,
+                    userImage: doc.data().userImage,
+                    replyCount: doc.data.replyCount,
+                    commentId: doc.id
+                })
+            })
+        })
+        .catch(err => {
+            console.error(err);
+            res.status(500).json({ error: err.code});
+        })
+};
 
 // like cleaner
 exports.likeCleaner = (req, res) => {
@@ -285,3 +342,4 @@ exports.cancleUnlikeCleaner = (req, res) => {
             res.status(500).json({ error: err.code });
         });
 };
+
