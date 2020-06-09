@@ -3,36 +3,36 @@ const { db } = require('./util/admin');
 const app = require('express')();
 
 const {
-    getAllComments, 
-    createComment, 
+    getAllComments,
+    createComment,
     getComment,
-    custReplyComment ,
+    custReplyComment,
     cleanerReplyComment,
     deleteComment
 } = require('./handlers/comments');
 
-const { 
-    signup, 
+const {
+    signup,
     login,
     deleteCleaner,
     markNotificationRead
 } = require('./handlers/users');
 
-const { 
-    getCleaners, 
+const {
+    getCleaners,
     uploadCleanerImage,
-    addCleanerDetails ,
+    addCleanerDetails,
     getAuthenticatedCleaner,
     likeCleaner,
     cancleLikeCleaner,
     unlikeCleaner,
     cancleUnlikeCleaner,
-    getCleaner
+    getCleanerDetails
 } = require('./handlers/cleaners');
 
-const { 
-    uploadCustImage, 
-    addCustDetails ,
+const {
+    uploadCustImage,
+    addCustDetails,
     getAuthenticatedCust
 } = require('./handlers/customers');
 

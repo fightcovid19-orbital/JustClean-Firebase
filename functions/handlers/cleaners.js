@@ -15,6 +15,7 @@ exports.getCleaners = (req, res) => {
                     likeCount: doc.data().likeCount,
                     unlikeCount: doc.data().unlikeCount,
                     createdAt: doc.data().createdAt,
+                    imageUrl: doc.data().imageUrl
                 });
             });
             return res.json(cleaners);
@@ -29,16 +30,16 @@ exports.uploadCleanerImage = (req, res) => {
     const os = require('os');
     const fs = require('fs');
 
-    const busboy = new BusBoy({headers: req.headers});
+    const busboy = new BusBoy({ headers: req.headers });
 
     let imageFileName;
     let imageToBeUploaded = {};
 
     busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
         if (mimetype !== 'image/jpeg' && mimetype !== 'image/png') {
-            return res.status(400).json({error: 'Wrong file type'});
+            return res.status(400).json({ error: 'Wrong file type' });
         }
-        
+
         const splitImageFileName = filename.split('.');
         const imageExtension = splitImageFileName[splitImageFileName.length - 1];
         imageFileName = `${Math.round(Math.random() * 1000000000000)}.${imageExtension}`;
@@ -59,18 +60,18 @@ exports.uploadCleanerImage = (req, res) => {
                     }
                 }
             })
-            .then(()=> {
+            .then(() => {
                 const imageUrl = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${imageFileName}?alt=media`;
-                return db.doc(`/cleaners/${req.user.cleanerName}`).update({imageUrl});
+                return db.doc(`/cleaners/${req.user.cleanerName}`).update({ imageUrl });
             })
             .then(() => {
-                return res.json({ message: 'Image uploaded successfully'})
+                return res.json({ message: 'Image uploaded successfully' })
             })
             .catch(err => {
                 console.error(err);
                 return res.status(500).json({ error: err.code });
             });
-        
+
     });
 
     busboy.end(req.rawBody);
@@ -83,11 +84,11 @@ exports.addCleanerDetails = (req, res) => {
     db.doc(`/cleaners/${req.user.cleanerName}`)
         .update(cleanerDetails)
         .then(() => {
-            return res.json({ message: 'added successfully'});
+            return res.json({ message: 'added successfully' });
         })
         .catch(err => {
             console.error(err);
-            return res.status(500).json({error: err.code});
+            return res.status(500).json({ error: err.code });
         });
 };
 
@@ -116,7 +117,7 @@ exports.getAuthenticatedCleaner = (req, res) => {
                 .get();
         })
         .then(data => {
-            cleanerData.notifications =[];
+            cleanerData.notifications = [];
             data.forEach(doc => {
                 cleanerData.notifications.push({
                     recipient: doc.data().recipient,
@@ -131,7 +132,7 @@ exports.getAuthenticatedCleaner = (req, res) => {
         })
         .catch(err => {
             console.error(err);
-            return status(500).json({ error: err.code});
+            return status(500).json({ error: err.code });
         })
 };
 
@@ -163,7 +164,7 @@ exports.getCleanerDetails = (req, res) => {
         })
         .catch(err => {
             console.error(err);
-            res.status(500).json({ error: err.code});
+            res.status(500).json({ error: err.code });
         })
 };
 
@@ -173,19 +174,19 @@ exports.likeCleaner = (req, res) => {
         .where('userHandle', '==', req.user.customerName)
         .where('cleanerName', '==', req.params.cleanerName)
         .limit(1);
-    
+
     const cleanerDocument = db.doc(`/cleaners/${req.params.cleanerName}`);
 
     let cleanerData;
 
     cleanerDocument.get()
         .then(doc => {
-            if(doc.exists) {
+            if (doc.exists) {
                 cleanerData = doc.data();
                 cleanerData.cleanerName = doc.cleanerName;
                 return likeDocument.get();
             } else {
-                return res.status(404).json({error: "Cleaner does not exists"});
+                return res.status(404).json({ error: "Cleaner does not exists" });
             }
         })
         .then(data => {
@@ -197,7 +198,7 @@ exports.likeCleaner = (req, res) => {
                     })
                     .then(() => {
                         cleanerData.likeCount++;
-                        return cleanerDocument.update({likeCount: cleanerData.likeCount});
+                        return cleanerDocument.update({ likeCount: cleanerData.likeCount });
                     })
                     .then(() => {
                         return res.json(cleanerData);
@@ -218,31 +219,31 @@ exports.cancleLikeCleaner = (req, res) => {
         .where('userHandle', '==', req.user.customerName)
         .where('cleanerName', '==', req.params.cleanerName)
         .limit(1);
-    
+
     const cleanerDocument = db.doc(`/cleaners/${req.params.cleanerName}`);
 
     let cleanerData;
 
     cleanerDocument.get()
         .then(doc => {
-            if(doc.exists) {
+            if (doc.exists) {
                 cleanerData = doc.data();
                 cleanerData.cleanerName = doc.cleanerName;
                 return likeDocument.get();
             } else {
-                return res.status(404).json({error: "Cleaner does not exists"});
+                return res.status(404).json({ error: "Cleaner does not exists" });
             }
         })
         .then(data => {
             if (data.empty) {
                 return res.status(400).json({ error: "Cleaner not liked" });
-                
+
             } else {
                 return db.doc(`/likes/${data.docs[0].id}`)
                     .delete()
                     .then(() => {
                         cleanerData.likeCount--;
-                        return cleanerDocument.update({ likeCount: cleanerData.likeCount});
+                        return cleanerDocument.update({ likeCount: cleanerData.likeCount });
                     })
                     .then(() => {
                         res.json(cleanerData);
@@ -261,19 +262,19 @@ exports.unlikeCleaner = (req, res) => {
         .where('userHandle', '==', req.user.customerName)
         .where('cleanerName', '==', req.params.cleanerName)
         .limit(1);
-    
+
     const cleanerDocument = db.doc(`/cleaners/${req.params.cleanerName}`);
 
     let cleanerData;
 
     cleanerDocument.get()
         .then(doc => {
-            if(doc.exists) {
+            if (doc.exists) {
                 cleanerData = doc.data();
                 cleanerData.cleanerName = doc.cleanerName;
                 return unlikeDocument.get();
             } else {
-                return res.status(404).json({error: "Cleaner does not exists"});
+                return res.status(404).json({ error: "Cleaner does not exists" });
             }
         })
         .then(data => {
@@ -285,7 +286,7 @@ exports.unlikeCleaner = (req, res) => {
                     })
                     .then(() => {
                         cleanerData.unlikeCount++;
-                        return cleanerDocument.update({unlikeCount: cleanerData.unlikeCount});
+                        return cleanerDocument.update({ unlikeCount: cleanerData.unlikeCount });
                     })
                     .then(() => {
                         return res.json(cleanerData);
@@ -306,31 +307,31 @@ exports.cancleUnlikeCleaner = (req, res) => {
         .where('userHandle', '==', req.user.customerName)
         .where('cleanerName', '==', req.params.cleanerName)
         .limit(1);
-    
+
     const cleanerDocument = db.doc(`/cleaners/${req.params.cleanerName}`);
 
     let cleanerData;
 
     cleanerDocument.get()
         .then(doc => {
-            if(doc.exists) {
+            if (doc.exists) {
                 cleanerData = doc.data();
                 cleanerData.cleanerName = doc.cleanerName;
                 return unlikeDocument.get();
             } else {
-                return res.status(404).json({error: "Cleaner does not exists"});
+                return res.status(404).json({ error: "Cleaner does not exists" });
             }
         })
         .then(data => {
             if (data.empty) {
                 return res.status(400).json({ error: "Cleaner not unliked" });
-                
+
             } else {
                 return db.doc(`/unlikes/${data.docs[0].id}`)
                     .delete()
                     .then(() => {
                         cleanerData.unlikeCount--;
-                        return cleanerDocument.update({ unlikeCount: cleanerData.unlikeCount});
+                        return cleanerDocument.update({ unlikeCount: cleanerData.unlikeCount });
                     })
                     .then(() => {
                         res.json(cleanerData);
