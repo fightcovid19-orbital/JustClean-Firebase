@@ -13,7 +13,8 @@ const {
 
 const { 
     signup, 
-    login 
+    login,
+    deleteCleaner
 } = require('./handlers/users');
 
 const { 
@@ -55,6 +56,8 @@ app.delete('/comment/:commentId', custFbAuth, deleteComment);
 app.post('/signup', signup);
 // login
 app.post('/login', login);
+// delete Account
+app.delete('/deleteCleaner', cleanerFbAuth, deleteCleaner);
 
 //Customer route
 // upload image

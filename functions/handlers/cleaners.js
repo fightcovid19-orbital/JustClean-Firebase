@@ -277,7 +277,7 @@ exports.cancleUnlikeCleaner = (req, res) => {
                     })
                     .then(() => {
                         res.json(cleanerData);
-                    })
+                    });
             }
         })
         .catch(err => {

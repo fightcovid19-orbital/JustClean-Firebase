@@ -138,3 +138,38 @@ exports.login = (req, res) => {
             }
         });
 };
+
+exports.deleteCleaner = (req, res) => {
+    firebase.auth()
+        .delete()
+        .then(() => {
+            return db.doc(`/cleaners/${req.user.cleanerName}`).delete();
+        })
+        .then(() => {
+            return res.json({ message: 'Delete Successfully' });
+        })
+        .catch(err => {
+            console.error(err);
+            return res.status(500).json({error: err.code});
+        });   
+    db.doc(`/cleaners/${req.user.cleanerName}`)
+        .get()
+        .then(doc => {
+            if (!doc.exists) {
+                return res.status(400).json({ message: 'this account has been deleted/ does not exist'});
+            } else {
+                return firebase.auth().currentUser
+                    .delete()
+                    .then(() => {
+                        return db.doc(`/cleaners/${req.user.cleanerName}`).delete();
+                    })
+                    .then(() => {
+                        return res.json({ message: 'Delete Successfully' });
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        return res.status(500).json({error: err.code});
+                    });   
+            }
+        });
+};
