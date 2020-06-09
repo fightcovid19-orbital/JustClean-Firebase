@@ -86,7 +86,6 @@ exports.signup = (req, res) => {
                             const customerCredentials = {
                                 customerName: newUser.userName,
                                 email: newUser.email,
-                                type: newUser.type,
                                 createdAt: new Date().toISOString(),
                                 customerId: userId,
                                 imageUrl

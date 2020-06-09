@@ -27,13 +27,16 @@ exports.createComment = (req, res) => {
     const newComment = {
         body: req.body.body,
         userHandle: req.user.customerName,
+        userImage: req.user.imageUrl,
         createdAt: new Date().toISOString()
     };
 
     db.collection('comments')
         .add(newComment)
         .then(doc => {
-            res.json({message: `comment ${doc.id} created successfully`});
+            const resComment = newComment;
+            resComment.commentId = doc.id
+            res.json(resComment);
         })
         .catch(err => {
             res.status(500).json({error: 'something went wrong'});
@@ -136,5 +139,28 @@ exports.cleanerReplyComment = (req, res) => {
         .catch(err => {
             console.log(err);
             res.status(500).json({ error: "Something went wrong" });
-        })
+        });
 };
+
+// Delete comment
+exports.deleteComment = (req, res) => {
+    const document = db.doc(`/comments/${req.params.commentId}`);
+    document.get()
+        .then(doc => {
+            if(!doc.exists) {
+                return res.status(404).json({error: 'Comment not found'});
+            }
+            if (doc.data().userHandle !== req.user.customerName) {
+                return res.status(403).json({ error: 'Unauthorized' });
+            } else {
+                return document.delete();
+            }
+        })
+        .then(() => {
+            res.json({ message: ' Comment deleted successfully' });
+        })
+        .catch(err => {
+            console.error(err);
+            return res.status(500).json({ error: err.code });
+        })
+}

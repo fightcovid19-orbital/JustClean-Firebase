@@ -95,6 +95,3 @@ exports.getAuthenticatedCust = (req, res) => {
             return res.status(500).json({ error: err.code});
         });
 };
-
-// like cleaner
-// unlike cleaner

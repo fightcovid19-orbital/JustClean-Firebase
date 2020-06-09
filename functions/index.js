@@ -7,7 +7,8 @@ const {
     createComment, 
     getComment,
     custReplyComment ,
-    cleanerReplyComment
+    cleanerReplyComment,
+    deleteComment
 } = require('./handlers/comments');
 
 const { 
@@ -19,7 +20,11 @@ const {
     getCleaners, 
     uploadCleanerImage,
     addCleanerDetails ,
-    getAuthenticatedCleaner
+    getAuthenticatedCleaner,
+    likeCleaner,
+    cancleLikeCleaner,
+    unlikeCleaner,
+    cancleUnlikeCleaner
 } = require('./handlers/cleaners');
 
 const { 
@@ -42,6 +47,8 @@ app.get('/comment/:commentId', getComment);
 app.post('/comment/:commentId/reply', custFbAuth, custReplyComment);
 // cleaner create replies
 app.post('/comment/:commentId/reply', custFbAuth, cleanerReplyComment);
+// delete comment;
+app.delete('/comment/:commentId', custFbAuth, deleteComment);
 
 //User route
 // Signup
@@ -65,5 +72,13 @@ app.post('/cleaner/image', cleanerFbAuth, uploadCleanerImage);
 app.post('/cleaner', cleanerFbAuth, addCleanerDetails);
 // own details
 app.get('/cleaner', cleanerFbAuth, getAuthenticatedCleaner);
+// like cleaner
+app.get('/cleaner/:cleanerName/like', custFbAuth, likeCleaner);
+// cancle like cleaner
+app.get('/cleaner/:cleanerName/cancleLike', custFbAuth, cancleLikeCleaner);
+// unlike cleaner
+app.get('/cleaner/:cleanerName/unlike', custFbAuth, unlikeCleaner);
+// cancle Unlike cleaner
+app.get('/cleaner/:cleanerName/cancleUnlike', custFbAuth, cancleUnlikeCleaner);
 
 exports.api = functions.https.onRequest(app);
