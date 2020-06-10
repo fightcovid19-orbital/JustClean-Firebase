@@ -27,7 +27,7 @@ const {
     cancleLikeCleaner,
     unlikeCleaner,
     cancleUnlikeCleaner,
-    getCleanerDetails
+    getCleanerDetails // public route 
 } = require('./handlers/cleaners');
 
 const {
@@ -122,7 +122,7 @@ exports.createNotificationOnLike = functions
             });
     });
 
-exports.deleteNotificationOnCancleLike = functions
+exports.deleteNotificationOnCancelLike = functions
     .firestore.document('likes/{id}')
     .onDelete(snapshot => {
         db.doc(`/notifications/${snapshot.id}`)
@@ -217,7 +217,7 @@ exports.createNotificationOnComment = functions
             });
     });
 
-exports.deleteNotificationOnCancleComment = functions
+exports.deleteNotificationOnCancelComment = functions
     .firestore.document('comments/{id}')
     .onDelete(snapshot => {
         db.doc(`/notifications/${snapshot.id}`)
