@@ -19,32 +19,34 @@ exports.getAllComments = (req, res) => {
         .catch(err => console.err(err));
 };
 
+//create comment
 exports.createComment = (req, res) => {
     if (req.body.body.trim() === '') {
         return res.status(400).json({body: 'Must not be empty'});
     }
 
-    db.doc(`/cleaners/${req.body.commentOn}`)
+    const newComment = {
+        body: req.body.body,
+        userHandle: req.user.customerName,
+        userImage: req.user.imageUrl,
+        createdAt: new Date().toISOString(),
+        commentOn: req.params.cleanerName,
+        replyCount: 0
+    };
+
+    db.doc(`/cleaners/${req.params.cleanerName}`)
         .get()
         .then(doc => {
             if(!doc.exists) {
-                return res.status(404).json({ error: 'Cleaner does not exist'})
+                return res.status(404).json({ error: 'Cleaner does not exist'});
             }
 
-            const newComment = {
-                body: req.body.body,
-                userHandle: req.user.customerName,
-                userImage: req.user.imageUrl,
-                createdAt: new Date().toISOString(),
-                commentOn: req.body.commentOn
-            };
-
             return db.collection('comments')
-                .add(newComment)
+                .add(newComment);
         })
         .then(doc => {
             const resComment = newComment;
-            resComment.commentId = doc.id
+            resComment.commentId = doc.id;
             res.json(resComment);
         })
         .catch(err => {
@@ -80,7 +82,7 @@ exports.getComment = (req, res) => {
         .catch(err => {
             console.error(err);
             res.status(500).json({ error: err.code});
-        })
+        });
 };
 
 // customer reply comment
@@ -104,7 +106,7 @@ exports.custReplyComment = (req, res) => {
                 return res.status(404).json({ error: 'Comment not found' });
             }
 
-            return doc.ref.update({ replyCount: doc.data().replyCount + 1})
+            return doc.ref.update({ replyCount: doc.data().replyCount + 1});
         })
         .then(() => {
             return db.collection('custReplies')
@@ -116,7 +118,7 @@ exports.custReplyComment = (req, res) => {
         .catch(err => {
             console.log(err);
             res.status(500).json({ error: "Something went wrong" });
-        })
+        });
 };
 
 // cleaner reply comment
@@ -140,7 +142,7 @@ exports.cleanerReplyComment = (req, res) => {
                 return res.status(404).json({ error: 'Comment not found' });
             }
 
-            return doc.ref.update({ replyCount: doc.data().replyCount + 1})
+            return doc.ref.update({ replyCount: doc.data().replyCount + 1});
         })
         .then(() => {
             return db.collection('cleanerReplies')
@@ -175,5 +177,5 @@ exports.deleteComment = (req, res) => {
         .catch(err => {
             console.error(err);
             return res.status(500).json({ error: err.code });
-        })
-}
+        });
+};

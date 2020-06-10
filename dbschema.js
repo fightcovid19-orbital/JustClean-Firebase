@@ -1,33 +1,56 @@
 // sample data
 
 let db = {
-    users: [
+    customer: [
         {
             userId: 'dh23ggj5h32g543j5gf43',
             email: 'user@email.com',
             handle: 'user',
             createdAt: '2019-03-15T10:59:52.798Z',
             imageUrl: 'image/dsfsdkfghskdfgs/dgfdhfgdh',
+            //extra details
             bio: 'Hello, my name is user, nice to meet you',
             location: 'London, UK'
         }
     ],
     cleaners: [
         {
-            cleanerHandle: 'cleaner1',
+            cleanerId: '123',
+            cleanerName: 'cleaner1',
             createdAt: '2019-03-15T10:59:52.798Z',
+            email: 'user@email.com',
             likeCount: 5,
             unlikeCount: 2,
             hiredCount: 2,
-            //commentCount: 3
+            imageUrl: 'image/dsfsdkfghskdfgs/dgfdhfgdh',
+            //extra details
+            bio: "hello",
+            location: "London"
         }
     ],
     comments: [
         {
             userHandle: 'user',
-            screamId: 'kdjsfgdksuufhgkdsufky',
+            commentOn: 'kdjsfgdksuufhgkdsufky',
             body: 'nice one mate!',
-            createdAt: '2019-03-15T10:59:52.798Z'
+            createdAt: '2019-03-15T10:59:52.798Z',
+            userImage: 'image/dsfsdkfghskdfgs/dgfdhfgdh',
+            replyCount: 0
+        }
+    ],
+    likes: [
+        {
+            userHandle: 'user',
+            cleanerName: 'kdjsfgdksuufhgkdsufky', 
+        }
+    ],
+    comments: [
+        {
+            userHandle: 'user',
+            body: 'nice one mate!',
+            createdAt: '2019-03-15T10:59:52.798Z',
+            userImage: 'image/dsfsdkfghskdfgs/dgfdhfgdh',
+            commentId: 0
         }
     ]
 }

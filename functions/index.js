@@ -43,13 +43,13 @@ const cleanerFbAuth = require('./util/cleanerFbAuth');
 // get cleanner's all comment
 app.get('/comments', getAllComments);
 // create comment
-app.post('/comment', custFbAuth, createComment);
+app.post('/comment/:cleanerName', custFbAuth, createComment);
 // get cleaner's one comment
 app.get('/comment/:commentId', getComment);
 // customer create replies
-app.post('/comment/:commentId/reply', custFbAuth, custReplyComment);
+app.post('/comment/:commentId/custReply', custFbAuth, custReplyComment);
 // cleaner create replies
-app.post('/comment/:commentId/reply', cleanerFbAuth, cleanerReplyComment);
+app.post('/comment/:commentId/cleanerReply', cleanerFbAuth, cleanerReplyComment);
 // delete comment;
 app.delete('/comment/:commentId', custFbAuth, deleteComment);
 
@@ -69,7 +69,7 @@ app.post('/customer', custFbAuth, addCustDetails);
 // own details
 app.get('/customer', custFbAuth, getAuthenticatedCust);
 // mark notification read
-app.post('cleanerNotifications', custFbAuth, markNotificationRead);
+app.post('/custNotifications', custFbAuth, markNotificationRead);
 
 // Cleaner route
 // get all cleaners
@@ -91,7 +91,7 @@ app.get('/cleaner/:cleanerName/unlike', custFbAuth, unlikeCleaner);
 // cancle Unlike cleaner
 app.get('/cleaner/:cleanerName/cancleUnlike', custFbAuth, cancleUnlikeCleaner);
 // mark notification read
-app.post('cleanerNotifications', cleanerFbAuth, markNotificationRead);
+app.post('/cleanerNotifications', cleanerFbAuth, markNotificationRead);
 
 
 exports.api = functions.https.onRequest(app);
@@ -109,8 +109,7 @@ exports.createNotificationOnLike = functions
                             recipient: doc.data().cleanerName,
                             sender: snapshot.data().userHandle,
                             type: 'like',
-                            read: false,
-                            cleanerName: doc.cleanerName
+                            read: false
                         });
                 }
             })
@@ -120,7 +119,7 @@ exports.createNotificationOnLike = functions
             .catch(err => {
                 console.error(err);
                 return;
-            })
+            });
     });
 
 exports.deleteNotificationOnCancleLike = functions
@@ -134,9 +133,10 @@ exports.deleteNotificationOnCancleLike = functions
             .catch(err => {
                 console.error(err);
                 return;
-            })
+            });
     });
 
+// not sure
 exports.createNotificationOnCustReply = functions
     .firestore.document('custReplies/{id}')
     .onCreate(snapshot => {
@@ -161,7 +161,7 @@ exports.createNotificationOnCustReply = functions
             .catch(err => {
                 console.error(err);
                 return;
-            })
+            });
     });
 
 exports.createNotificationOnCleanerReply = functions
@@ -188,24 +188,23 @@ exports.createNotificationOnCleanerReply = functions
             .catch(err => {
                 console.error(err);
                 return;
-            })
+            });
     });
 
 exports.createNotificationOnComment = functions
     .firestore.document('comments/{id}')
     .onCreate(snapshot => {
-        db.doc(`/comments/${snapshot.data().commentId}`)
+        db.doc(`/cleaners/${snapshot.data().commentOn}`)
             .get()
             .then(doc => {
                 if (doc.exists) {
                     return db.doc(`/notifications/${snapshot.id}`)
                         .set({
                             createdAt: new Date().toISOString(),
-                            recipient: doc.data().commentOn,
+                            recipient: doc.data().cleanerName,
                             sender: snapshot.data().userHandle,
                             type: 'comment',
-                            read: false,
-                            commentId: doc.id
+                            read: false
                         });
                 }
             })
@@ -215,5 +214,19 @@ exports.createNotificationOnComment = functions
             .catch(err => {
                 console.error(err);
                 return;
+            });
+    });
+
+exports.deleteNotificationOnCancleComment = functions
+    .firestore.document('comments/{id}')
+    .onDelete(snapshot => {
+        db.doc(`/notifications/${snapshot.id}`)
+            .delete()
+            .then(() => {
+                return;
             })
+            .catch(err => {
+                console.error(err);
+                return;
+            });
     });
