@@ -26,9 +26,9 @@ const {
     addCleanerDetails,
     getAuthenticatedCleaner,
     likeCleaner,
-    cancleLikeCleaner,
+    cancelLikeCleaner,
     unlikeCleaner,
-    cancleUnlikeCleaner,
+    cancelUnlikeCleaner,
     getCleanerDetails // public route 
 } = require('./handlers/cleaners');
 
@@ -90,12 +90,12 @@ app.post('/cleaner', cleanerFbAuth, addCleanerDetails);
 app.get('/cleaner', cleanerFbAuth, getAuthenticatedCleaner);
 // like cleaner
 app.get('/cleaner/:cleanerName/like', custFbAuth, likeCleaner);
-// cancle like cleaner
-app.get('/cleaner/:cleanerName/cancleLike', custFbAuth, cancleLikeCleaner);
+//  cancellike cleaner
+app.get('/cleaner/:cleanerName/cancelLike', custFbAuth, cancelLikeCleaner);
 // unlike cleaner
 app.get('/cleaner/:cleanerName/unlike', custFbAuth, unlikeCleaner);
-// cancle Unlike cleaner
-app.get('/cleaner/:cleanerName/cancleUnlike', custFbAuth, cancleUnlikeCleaner);
+// cancel Unlike cleaner
+app.get('/cleaner/:cleanerName/cancelUnlike', custFbAuth, cancelUnlikeCleaner);
 // mark notification read
 app.post('/cleanerNotifications', cleanerFbAuth, markNotificationRead);
 
@@ -218,12 +218,33 @@ exports.deleteNotificationOnCancelComment = functions
 
 exports.onCustImageChange = functions
     .firestore
-    .document('/customers/{customerId}')
+    .document('/customers/{customerName}')
     .onUpdate(change => {
         if (change.before.data.imageUrl !== change.after.data().imageUrl) {
             const batch = db.batch();
             return db.collection('comments')
                 .where('userHandle', '==', change.before.data().cusotmerName)
+                .get()
+                .then(data => {
+                    data.forEach(doc => {
+                        const comment = db.doc(`/comments/${doc.id}`)
+                        batch.update(comment, { userImae: change.after.data().imageUrl });
+                    })
+                    return batch.commit();
+                });
+        } else {
+            return true;
+        }
+    });
+
+exports.onCleanerImageChange = functions
+    .firestore
+    .document('/cleaners/{cleanerName}')
+    .onUpdate(change => {
+        if (change.before.data.imageUrl !== change.after.data().imageUrl) {
+            const batch = db.batch();
+            return db.collection('comments')
+                .where('userHandle', '==', change.before.data().cleanerName)
                 .get()
                 .then(data => {
                     data.forEach(doc => {

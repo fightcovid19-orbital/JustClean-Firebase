@@ -213,8 +213,8 @@ exports.likeCleaner = (req, res) => {
         });
 };
 
-// cancle like cleaner
-exports.cancleLikeCleaner = (req, res) => {
+// cancel like cleaner
+exports.cancelLikeCleaner = (req, res) => {
     const likeDocument = db.collection('likes')
         .where('userHandle', '==', req.user.customerName)
         .where('cleanerName', '==', req.params.cleanerName)
@@ -301,8 +301,8 @@ exports.unlikeCleaner = (req, res) => {
         });
 };
 
-// cancle unlike cleaner
-exports.cancleUnlikeCleaner = (req, res) => {
+// cancel unlike cleaner
+exports.cancelUnlikeCleaner = (req, res) => {
     const unlikeDocument = db.collection('unlikes')
         .where('userHandle', '==', req.user.customerName)
         .where('cleanerName', '==', req.params.cleanerName)
