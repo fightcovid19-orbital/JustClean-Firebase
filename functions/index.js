@@ -8,7 +8,9 @@ const {
     getComment,
     custReplyComment,
     cleanerReplyComment,
-    deleteComment
+    deleteComment,
+    deleteCustReply,
+    deleteCleanerReply
 } = require('./handlers/comments');
 
 const {
@@ -52,6 +54,10 @@ app.post('/comment/:commentId/custReply', custFbAuth, custReplyComment);
 app.post('/comment/:commentId/cleanerReply', cleanerFbAuth, cleanerReplyComment);
 // delete comment;
 app.delete('/comment/:commentId', custFbAuth, deleteComment);
+// delete Customer reply
+app.delete('/comment/:commentId/custReply', custFbAuth, deleteCustReply);
+// delete cleaner reply
+app.delete('/comment/:commentId/cleanerReply', cleanerFbAuth, deleteCleanerReply);
 
 //User route
 // Signup
@@ -99,10 +105,10 @@ exports.api = functions.https.onRequest(app);
 exports.createNotificationOnLike = functions
     .firestore.document('likes/{id}')
     .onCreate(snapshot => {
-        db.doc(`/cleaners/${snapshot.data().cleanerName}`)
+        return db.doc(`/cleaners/${snapshot.data().cleanerName}`)
             .get()
             .then(doc => {
-                if (doc.exists) {
+                if (doc.exists && doc.data().userHandle != snapshot.data().userHandle) {
                     return db.doc(`/notifications/${snapshot.id}`)
                         .set({
                             createdAt: new Date().toISOString(),
@@ -113,37 +119,32 @@ exports.createNotificationOnLike = functions
                         });
                 }
             })
-            .then(() => {
-                return;
-            })
             .catch(err => {
                 console.error(err);
-                return;
             });
     });
 
 exports.deleteNotificationOnCancleLike = functions
     .firestore.document('likes/{id}')
     .onDelete(snapshot => {
-        db.doc(`/notifications/${snapshot.id}`)
+        return db.doc(`/notifications/${snapshot.id}`)
             .delete()
             .then(() => {
                 return;
             })
             .catch(err => {
                 console.error(err);
-                return;
             });
     });
 
-// not sure
+/*
 exports.createNotificationOnCustReply = functions
     .firestore.document('custReplies/{id}')
     .onCreate(snapshot => {
-        db.doc(`/comments/${snapshot.data().commentId}`)
+        return db.doc(`/comments/${snapshot.data().commentId}`)
             .get()
             .then(doc => {
-                if (doc.exists) {
+                if (doc.exists && doc.data().userHandle != snapshot.data().userHandle) {
                     return db.doc(`/notifications/${snapshot.id}`)
                         .set({
                             createdAt: new Date().toISOString(),
@@ -155,22 +156,18 @@ exports.createNotificationOnCustReply = functions
                         });
                 }
             })
-            .then(() => {
-                return;
-            })
             .catch(err => {
                 console.error(err);
-                return;
             });
     });
-
+*/
 exports.createNotificationOnCleanerReply = functions
     .firestore.document('cleanerReplies/{id}')
     .onCreate(snapshot => {
-        db.doc(`/comments/${snapshot.data().commentId}`)
+        return db.doc(`/comments/${snapshot.data().commentId}`)
             .get()
             .then(doc => {
-                if (doc.exists) {
+                if (doc.exists && doc.data().userHandle != snapshot.data().userHandle) {
                     return db.doc(`/notifications/${snapshot.id}`)
                         .set({
                             createdAt: new Date().toISOString(),
@@ -182,19 +179,15 @@ exports.createNotificationOnCleanerReply = functions
                         });
                 }
             })
-            .then(() => {
-                return;
-            })
             .catch(err => {
                 console.error(err);
-                return;
             });
     });
 
 exports.createNotificationOnComment = functions
     .firestore.document('comments/{id}')
     .onCreate(snapshot => {
-        db.doc(`/cleaners/${snapshot.data().commentOn}`)
+        return db.doc(`/cleaners/${snapshot.data().commentOn}`)
             .get()
             .then(doc => {
                 if (doc.exists) {
@@ -208,25 +201,120 @@ exports.createNotificationOnComment = functions
                         });
                 }
             })
-            .then(() => {
-                return;
-            })
             .catch(err => {
                 console.error(err);
-                return;
             });
     });
 
 exports.deleteNotificationOnCancleComment = functions
     .firestore.document('comments/{id}')
     .onDelete(snapshot => {
-        db.doc(`/notifications/${snapshot.id}`)
+        return db.doc(`/notifications/${snapshot.id}`)
             .delete()
-            .then(() => {
-                return;
-            })
             .catch(err => {
                 console.error(err);
-                return;
             });
+    });
+
+exports.onCustImageChange = functions
+    .firestore
+    .document('/customers/{customerId}')
+    .onUpdate(change => {
+        if (change.before.data.imageUrl !== change.after.data().imageUrl) {
+            const batch = db.batch();
+            return db.collection('comments')
+                .where('userHandle', '==', change.before.data().cusotmerName)
+                .get()
+                .then(data => {
+                    data.forEach(doc => {
+                        const comment = db.doc(`/comments/${doc.id}`)
+                        batch.update(comment, { userImae: change.after.data().imageUrl });
+                    })
+                    return batch.commit();
+                });
+        } else {
+            return true;
+        }
+    });
+
+exports.onCommentDelete = functions
+    .firestore.document('/comments/{commentId}')
+    .onDelete((snapshot, context) => {
+        const commentId = context.params.commentId;
+        const batch = db.batch();
+        return db.collection('custReplies')
+            .where('commentId', '==', commentId)
+            .get()
+            .then(data => {
+                data.forEach(doc => {
+                    batch.delete(db.doc(`/custReplies/${doc.id}`));
+                })
+                return db.collection('cleanerReplies')
+                    .where('commentId', '==', commentId)
+                    .get();
+            })
+            .then(data => {
+                data.forEach(doc => {
+                    batch.delete(db.doc(`/cleanerReplies/${doc.id}`));
+                })
+                return db.collection('notifications')
+                    .where('commentId', '==', commentId)
+                    .get();
+            })
+            .then(data => {
+                data.forEach(doc => {
+                    batch.delete(db.doc(`/notifications/${doc.id}`));
+                })
+                return batch.commit();
+            })
+            .catch(err => console.error(err));
+    });
+
+exports.onCleanerDelete = functions
+    .firestore.document('/cleaners/{cleanerName}')
+    .onDelete((snapshot, context) => {
+        const cleanerName = context.params.cleanerName;
+        const batch = db.batch();
+        return db.collection('likes')
+            .where('cleanerName', '==', cleanerName)
+            .get()
+            .then(data => {
+                data.forEach(doc => {
+                    batch.delete(db.doc(`/likes/${doc.id}`));
+                })
+                return db.collection('cleanerReplies')
+                    .where('userHandle', '==', cleanerName)
+                    .get();
+            })
+            .then(data => {
+                data.forEach(doc => {
+                    batch.delete(db.doc(`/cleanerReplies/${doc.id}`));
+                })
+                return db.collection('comments')
+                    .where('commentOn', '==', cleanerName)
+                    .get();
+            })
+            .then(data => {
+                data.forEach(doc => {
+                    batch.delete(db.doc(`/comments/${doc.id}`));
+                })
+                return db.collection('notifications')
+                    .where('recipient', '==', cleanerName)
+                    .get();
+            })
+            .then(data => {
+                data.forEach(doc => {
+                    batch.delete(db.doc(`/notifications/${doc.id}`));
+                })
+                return db.collection('notifications')
+                    .where('sneder', '==', cleanerName)
+                    .get();
+            })
+            .then(data => {
+                data.forEach(doc => {
+                    batch.delete(db.doc(`/notifications/${doc.id}`));
+                })
+                return batch.commit();
+            })
+            .catch(err => console.error(err));
     });
