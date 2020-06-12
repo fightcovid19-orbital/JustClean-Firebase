@@ -50,7 +50,8 @@ exports.signup = (req, res) => {
                                 likeCount: 0,
                                 unlikeCount: 0,
                                 cleanerId: userId,
-                                imageUrl
+                                imageUrl,
+                                type: newUser.type
                             };
                             return db.doc(`/cleaners/${newUser.userName}`).set(cleanerCredentials);
                         })
@@ -88,7 +89,8 @@ exports.signup = (req, res) => {
                                 email: newUser.email,
                                 createdAt: new Date().toISOString(),
                                 customerId: userId,
-                                imageUrl
+                                imageUrl,
+                                type: newUser.type
                             };
                             return db.doc(`/customers/${newUser.userName}`).set(customerCredentials);
                         })

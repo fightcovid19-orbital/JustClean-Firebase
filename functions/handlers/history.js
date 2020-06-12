@@ -1,6 +1,6 @@
 const { db } = require('../util/admin');
 
-exports.getHistory = (req, res) => {
+exports.getHistories = (req, res) => {
     db.collection('histories')
         .where('customerName' == req.params.customerName)
         .orderBy('createdAt', 'desc')

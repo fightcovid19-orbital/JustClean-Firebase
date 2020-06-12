@@ -21,6 +21,16 @@ const {
 } = require('./handlers/users');
 
 const {
+    getHistories,
+    createHistory
+} = require('./handlers/history');
+
+const {
+    getReservation,
+    createReservation
+} = require('./handlers/reservation');
+
+const {
     getCleaners,
     uploadCleanerImage,
     addCleanerDetails,
@@ -99,6 +109,13 @@ app.get('/cleaner/:cleanerName/cancelUnlike', custFbAuth, cancelUnlikeCleaner);
 // mark notification read
 app.post('/cleanerNotifications', cleanerFbAuth, markNotificationRead);
 
+//History route
+app.get('/histories/:customerName', custFbAuth, getHistories);
+app.get('/history/:customerName', cleanerFbAuth, createHistory);
+
+//History route
+app.get('/reserves/:customerName', cleanerFbAuth, getReservation);
+app.get('/reserve/:customerName', custFbAuth, createReservation);
 
 exports.api = functions.https.onRequest(app);
 
