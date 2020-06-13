@@ -8,6 +8,7 @@ let db = {
             handle: 'user',
             createdAt: '2019-03-15T10:59:52.798Z',
             imageUrl: 'image/dsfsdkfghskdfgs/dgfdhfgdh',
+            type: "customer",
             //extra details
             bio: 'Hello, my name is user, nice to meet you',
             location: 'London, UK'
@@ -23,6 +24,7 @@ let db = {
             unlikeCount: 2,
             hiredCount: 2,
             imageUrl: 'image/dsfsdkfghskdfgs/dgfdhfgdh',
+            type: "cleaner",
             //extra details
             bio: "hello",
             location: "London"
@@ -50,7 +52,21 @@ let db = {
             body: 'nice one mate!',
             createdAt: '2019-03-15T10:59:52.798Z',
             userImage: 'image/dsfsdkfghskdfgs/dgfdhfgdh',
-            commentId: 0
+            commentId: 'kdjsfgdksuufhgkdsufky'
+        }
+    ],
+    history: [
+        {
+            customerName: "customer",
+            clenerName: "cleaner",
+            createdAt: '2019-03-15T10:59:52.798Z'
+        }
+    ],
+    reservation: [
+        {
+            customerName: "customer",
+            clenerName: "cleaner",
+            createdAt: '2019-03-15T10:59:52.798Z'
         }
     ]
 }

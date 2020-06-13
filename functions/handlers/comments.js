@@ -10,7 +10,8 @@ exports.getAllComments = (req, res) => {
                 comments.push({
                     commentId: doc.id,
                     userHandle: doc.data().userHandle,
-                    body: doc.body,
+                    body: doc.data().body,
+                    replyCount: doc.data().replyCount,
                     createdAt: doc.data().createdAt
                 });
             });
@@ -203,7 +204,7 @@ exports.deleteCustReply = (req, res) => {
         });
 };
 
-// Delete cust Reply
+// Delete cleaner Reply
 exports.deleteCleanerReply = (req, res) => {
     const document = db.doc(`/cleanerReplies/${req.params.cleanerReplyId}`);
     document.get()

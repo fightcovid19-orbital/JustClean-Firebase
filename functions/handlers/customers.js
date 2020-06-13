@@ -75,11 +75,11 @@ exports.getAuthenticatedCust = (req, res) => {
     let custData = {};
     db.doc(`/customers/${req.user.customerName}`)
         .get()
-        .then((doc) => {
+        .then(doc => {
             if (doc.exists) {
                 custData.credentials = doc.data();
                 return db.collection("likes")
-                    .where("customerName", "==", req.user.customerName)
+                    .where("userHandle", "==", req.user.customerName)
                     .get();
             }
         })

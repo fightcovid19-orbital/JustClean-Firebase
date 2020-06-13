@@ -42,6 +42,13 @@ const {
     getCleanerDetails // public route 
 } = require('./handlers/cleaners');
 
+/*const {
+    likeCleaner,
+    cancelLikeCleaner,
+    unlikeCleaner,
+    cancelUnlikeCleaner,
+} = require('./handlers/cleaners');*/
+
 const {
     uploadCustImage,
     addCustDetails,
@@ -59,15 +66,15 @@ app.post('/comment/:cleanerName', custFbAuth, createComment);
 // get cleaner's one comment
 app.get('/comment/:commentId', getComment);
 // customer create replies
-app.post('/comment/:commentId/custReply', custFbAuth, custReplyComment);
+app.post('/custReply/:commentId', custFbAuth, custReplyComment);
 // cleaner create replies
-app.post('/comment/:commentId/cleanerReply', cleanerFbAuth, cleanerReplyComment);
+app.post('/cleanerReply/:commentId', cleanerFbAuth, cleanerReplyComment);
 // delete comment;
 app.delete('/comment/:commentId', custFbAuth, deleteComment);
 // delete Customer reply
-app.delete('/comment/:commentId/custReply', custFbAuth, deleteCustReply);
+app.delete('/custReply/:custReplyId', custFbAuth, deleteCustReply);
 // delete cleaner reply
-app.delete('/comment/:commentId/cleanerReply', cleanerFbAuth, deleteCleanerReply);
+app.delete('/cleanerReply/:cleanerReplyId', cleanerFbAuth, deleteCleanerReply);
 
 //User route
 // Signup
@@ -98,24 +105,26 @@ app.post('/cleaner/image', cleanerFbAuth, uploadCleanerImage);
 app.post('/cleaner', cleanerFbAuth, addCleanerDetails);
 // own details
 app.get('/cleaner', cleanerFbAuth, getAuthenticatedCleaner);
-// like cleaner
-app.get('/cleaner/:cleanerName/like', custFbAuth, likeCleaner);
-//  cancellike cleaner
-app.get('/cleaner/:cleanerName/cancelLike', custFbAuth, cancelLikeCleaner);
-// unlike cleaner
-app.get('/cleaner/:cleanerName/unlike', custFbAuth, unlikeCleaner);
-// cancel Unlike cleaner
-app.get('/cleaner/:cleanerName/cancelUnlike', custFbAuth, cancelUnlikeCleaner);
 // mark notification read
 app.post('/cleanerNotifications', cleanerFbAuth, markNotificationRead);
 
-//History route
-app.get('/histories/:customerName', custFbAuth, getHistories);
-app.get('/history/:customerName', cleanerFbAuth, createHistory);
+// like and unlike route
+// like cleaner
+app.get('/like/:cleanerName', custFbAuth, likeCleaner);
+//  cancellike cleaner
+app.get('/cancelLike/:cleanerName', custFbAuth, cancelLikeCleaner);
+// unlike cleaner
+app.get('/unlike/:cleanerName', custFbAuth, unlikeCleaner);
+// cancel Unlike cleaner
+app.get('/cancelUnlike/:cleanerName', custFbAuth, cancelUnlikeCleaner);
 
 //History route
-app.get('/reserves/:customerName', cleanerFbAuth, getReservation);
-app.get('/reserve/:customerName', custFbAuth, createReservation);
+app.get('/histories', custFbAuth, getHistories);
+app.get('/history/:customerName', cleanerFbAuth, createHistory);
+
+//reserve route
+app.get('/reserves', cleanerFbAuth, getReservation);
+app.get('/reserve/:cleanerName', custFbAuth, createReservation);
 
 exports.api = functions.https.onRequest(app);
 
@@ -223,7 +232,7 @@ exports.createNotificationOnComment = functions
             });
     });
 
-exports.deleteNotificationOnCancelComment = functions
+exports.deleteNotificationOnDeleteComment = functions
     .firestore.document('comments/{id}')
     .onDelete(snapshot => {
         return db.doc(`/notifications/${snapshot.id}`)
@@ -240,13 +249,22 @@ exports.onCustImageChange = functions
         if (change.before.data.imageUrl !== change.after.data().imageUrl) {
             const batch = db.batch();
             return db.collection('comments')
-                .where('userHandle', '==', change.before.data().cusotmerName)
+                .where('userHandle', '==', change.before.data().customerName)
                 .get()
                 .then(data => {
                     data.forEach(doc => {
                         const comment = db.doc(`/comments/${doc.id}`)
-                        batch.update(comment, { userImae: change.after.data().imageUrl });
+                        batch.update(comment, { userImage: change.after.data().imageUrl });
                     })
+                    return db.collection('custReplies')
+                        .where('userHandle', '==', change.before.data().customerName)
+                        .get();
+                })
+                .then(data => {
+                    data.forEach(doc => {
+                        const reply = db.doc(`/custReplies/${doc.id}`)
+                        batch.update(reply, { userImage: change.after.data().imageUrl });
+                    });
                     return batch.commit();
                 });
         } else {
@@ -260,14 +278,14 @@ exports.onCleanerImageChange = functions
     .onUpdate(change => {
         if (change.before.data.imageUrl !== change.after.data().imageUrl) {
             const batch = db.batch();
-            return db.collection('comments')
+            return db.collection('cleanerReplies')
                 .where('userHandle', '==', change.before.data().cleanerName)
                 .get()
                 .then(data => {
                     data.forEach(doc => {
-                        const comment = db.doc(`/comments/${doc.id}`)
-                        batch.update(comment, { userImae: change.after.data().imageUrl });
-                    })
+                        const reply = db.doc(`/cleanerReplies/${doc.id}`)
+                        batch.update(reply, { userImage: change.after.data().imageUrl });
+                    });
                     return batch.commit();
                 });
         } else {
@@ -345,12 +363,36 @@ exports.onCleanerDelete = functions
                     batch.delete(db.doc(`/notifications/${doc.id}`));
                 })
                 return db.collection('notifications')
-                    .where('sneder', '==', cleanerName)
+                    .where('sender', '==', cleanerName)
                     .get();
             })
             .then(data => {
                 data.forEach(doc => {
                     batch.delete(db.doc(`/notifications/${doc.id}`));
+                })
+                return db.collection('histories')
+                    .where('cleanerName', '==', cleanerName)
+                    .get();
+            })
+            .then(data => {
+                data.forEach(doc => {
+                    batch.delete(db.doc(`/histories/${doc.id}`));
+                })
+                return db.collection('reservations')
+                    .where('cleanerName', '==', cleanerName)
+                    .get();
+            })
+            .then(data => {
+                data.forEach(doc => {
+                    batch.delete(db.doc(`/reservations/${doc.id}`));
+                })
+                return db.collection('unlikes')
+                    .where('cleanerName', '==', cleanerName)
+                    .get();
+            })
+            .then(data => {
+                data.forEach(doc => {
+                    batch.delete(db.doc(`/unlikes/${doc.id}`));
                 })
                 return batch.commit();
             })

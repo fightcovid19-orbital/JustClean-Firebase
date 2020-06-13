@@ -38,8 +38,8 @@ exports.validateSignupData = data => {
     }
 
     // comfirm password
-    if (data.comfirmPassword !== data.password) {
-        errors.comfirmPassword = "Password not match";
+    if (data.confirmPassword !== data.password) {
+        errors.confirmPassword = "Password not match";
     }
 
     //Cleaner Name

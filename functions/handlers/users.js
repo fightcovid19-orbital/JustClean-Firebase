@@ -12,7 +12,7 @@ exports.signup = (req, res) => {
         userName: req.body.userName,
         type: req.body.type,
         password: req.body.password,
-        comfirmPassword: req.body.comfirmPassword
+        confirmPassword: req.body.confirmPassword
     };
 
     const { valid, errors } = validateSignupData(newUser);
@@ -44,14 +44,13 @@ exports.signup = (req, res) => {
                             const cleanerCredentials = {
                                 cleanerName: newUser.userName,
                                 email: newUser.email,
-                                type: newUser.type,
                                 createdAt: new Date().toISOString(),
                                 hiredCount: 0,
                                 likeCount: 0,
                                 unlikeCount: 0,
                                 cleanerId: userId,
+                                type: newUser.type,
                                 imageUrl,
-                                type: newUser.type
                             };
                             return db.doc(`/cleaners/${newUser.userName}`).set(cleanerCredentials);
                         })
@@ -89,8 +88,8 @@ exports.signup = (req, res) => {
                                 email: newUser.email,
                                 createdAt: new Date().toISOString(),
                                 customerId: userId,
-                                imageUrl,
-                                type: newUser.type
+                                type: newUser.type,
+                                imageUrl
                             };
                             return db.doc(`/customers/${newUser.userName}`).set(customerCredentials);
                         })

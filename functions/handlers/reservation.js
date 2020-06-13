@@ -2,32 +2,24 @@ const { db } = require('../util/admin');
 
 exports.getReservation = (req, res) => {
     db.collection('reservations')
-        .where('cleanerName' == req.params.cleanerName)
+        .where('cleanerName', '==' ,req.user.cleanerName)
         .get()
         .then(data => {
-            const reserveList = []
-            data.forEach(document => {
-                db.doc(`/custmers/${document.customerName}`)
-                    .get()
-                    .then(doc => {
-                        if(doc.exists) {
-                            reserveList.push({
-                                userImage: doc.data().userImage,
-                                customerName: doc.data().customerName,
-                                createdAt: document.createdAt
-                            });
-                        }
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        return res.status(404).json({error: err.code});
-                    })
-            })
-            res.json(reserveList);
+            const reserveList = [];
+            data.forEach(doc => {
+                if(doc.exists) {
+                    reserveList.push({
+                        customerImage: doc.data().customerImage,
+                        customerName: doc.data().customerName,
+                        createdAt: doc.data().createdAt
+                    });
+                }
+            });
+            return res.json(reserveList);
         })
         .catch(err => {
             console.error(err);
-            res.status(500).json({ error: err.code });
+            return res.status(500).json({ error: err.code });
         });
 };
 
@@ -38,12 +30,22 @@ exports.createReservation = (req, res) => {
         createdAt: new Date().toISOString()
     };
 
-    db.doc(`/customers/${req.params.customerName}`)
+    db.doc(`/cleaners/${req.params.cleanerName}`)
         .get()
+        .then(doc => {
+            if(!doc.exists) {
+                return res.status(404).json({ error: 'Cleaner does not exist'});
+            }
+           
+            return db.doc(`customers/${req.user.customerName}`)
+                .get();
+        })
         .then(doc => {
             if(!doc.exists) {
                 return res.status(404).json({ error: 'Customer does not exist'});
             }
+
+            newReservation.customerImage =  doc.data().imageUrl;
 
             return db.collection('reservations')
                 .add(newReservation);

@@ -126,14 +126,14 @@ exports.getAuthenticatedCleaner = (req, res) => {
                     type: doc.data().type,
                     read: doc.data().read,
                     notificationId: doc.id
-                })
+                });
             });
             return res.json(cleanerData);
         })
         .catch(err => {
             console.error(err);
             return status(500).json({ error: err.code });
-        })
+        });
 };
 
 //get one cleaner
@@ -145,27 +145,28 @@ exports.getCleanerDetails = (req, res) => {
             if (doc.exists) {
                 cleanerData.user = doc.data();
                 return db.collection('comments')
-                    .where('userHandle', '==', req.params.commentOn)
-                    .orderBy('createdAt', desc)
-                    .get()
+                    .where('commentOn', '==', req.params.cleanerName)
+                    .orderBy('createdAt', 'desc')
+                    .get();
             }
         })
         .then(data => {
-            userData.comments = [];
+            cleanerData.comments = [];
             data.forEach(doc => {
-                userdata.comments.push({
+                cleanerData.comments.push({
                     body: doc.data().createdAt,
                     userHandle: doc.data().userHandle,
                     userImage: doc.data().userImage,
                     replyCount: doc.data.replyCount,
                     commentId: doc.id
-                })
-            })
+                });
+            });
+            res.json(cleanerData);
         })
         .catch(err => {
             console.error(err);
             res.status(500).json({ error: err.code });
-        })
+        });
 };
 
 // like cleaner
