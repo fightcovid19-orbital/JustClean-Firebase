@@ -35,19 +35,15 @@ const {
     uploadCleanerImage,
     addCleanerDetails,
     getAuthenticatedCleaner,
-    likeCleaner,
-    cancelLikeCleaner,
-    unlikeCleaner,
-    cancelUnlikeCleaner,
     getCleanerDetails // public route 
 } = require('./handlers/cleaners');
 
-/*const {
+const {
     likeCleaner,
     cancelLikeCleaner,
     unlikeCleaner,
     cancelUnlikeCleaner,
-} = require('./handlers/cleaners');*/
+} = require('./handlers/likes');
 
 const {
     uploadCustImage,
