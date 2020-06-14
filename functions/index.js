@@ -27,7 +27,8 @@ const {
 
 const {
     getReservation,
-    createReservation
+    createReservation,
+    deleteReservation
 } = require('./handlers/reservation');
 
 const {
@@ -121,6 +122,7 @@ app.get('/history/:customerName', cleanerFbAuth, createHistory);
 //reserve route
 app.get('/reserves', cleanerFbAuth, getReservation);
 app.get('/reserve/:cleanerName', custFbAuth, createReservation);
+app.delete('/reserve/:reserveId', custFbAuth, deleteReservation);
 
 exports.api = functions.https.onRequest(app);
 
@@ -219,6 +221,50 @@ exports.createNotificationOnComment = functions
                             recipient: doc.data().cleanerName,
                             sender: snapshot.data().userHandle,
                             type: 'comment',
+                            read: false
+                        });
+                }
+            })
+            .catch(err => {
+                console.error(err);
+            });
+    });
+
+exports.createNotificationOnReserve = functions
+    .firestore.document('reservations/{id}')
+    .onCreate(snapshot => {
+        return db.doc(`/cleaners/${snapshot.data().cleanerName}`)
+            .get()
+            .then(doc => {
+                if (doc.exists) {
+                    return db.doc(`/notifications/${snapshot.id}`)
+                        .set({
+                            createdAt: new Date().toISOString(),
+                            recipient: doc.data().cleanerName,
+                            sender: snapshot.data().customerName,
+                            type: 'reserve',
+                            read: false
+                        });
+                }
+            })
+            .catch(err => {
+                console.error(err);
+            });
+    });
+
+exports.createNotificationOnHistory = functions
+    .firestore.document('histories/{id}')
+    .onCreate(snapshot => {
+        return db.doc(`/customers/${snapshot.data().customerName}`)
+            .get()
+            .then(doc => {
+                if (doc.exists) {
+                    return db.doc(`/notifications/${snapshot.id}`)
+                        .set({
+                            createdAt: new Date().toISOString(),
+                            recipient: doc.data().customerName,
+                            sender: snapshot.data().cleanerName,
+                            type: 'history',
                             read: false
                         });
                 }

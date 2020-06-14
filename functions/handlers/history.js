@@ -53,6 +53,9 @@ exports.createHistory = (req, res) => {
             newHistory.cleanerLikeCount = doc.data().likeCount;
             newHistory.cleanerUnlikeCount = doc.data().unlikeCount;
 
+            return doc.ref.update({ hiredCount: doc.data().hiredCount + 1});
+        })
+        .then(() => {
             return db.collection('histories')
                 .add(newHistory);
         })

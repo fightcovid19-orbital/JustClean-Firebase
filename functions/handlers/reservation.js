@@ -60,3 +60,25 @@ exports.createReservation = (req, res) => {
             console.error(err);
         });       
 };
+
+exports.deleteReservation = (req, res) => {
+    const document = db.doc(`/reservations/${req.params.reserveId}`);
+    document.get()
+        .then(doc => {
+            if(!doc.exists) {
+                return res.status(404).json({error: 'No reservation made'});
+            }
+            if (doc.data().customerName !== req.user.customerName) {
+                return res.status(403).json({ error: 'Unauthorized' });
+            } else {
+                return document.delete();
+            }
+        })
+        .then(() => {
+            res.json({ message: ' Reservation deleted successfully' });
+        })
+        .catch(err => {
+            console.error(err);
+            return res.status(500).json({ error: err.code });
+        });
+};
