@@ -36,7 +36,8 @@ const {
     uploadCleanerImage,
     addCleanerDetails,
     getAuthenticatedCleaner,
-    getCleanerDetails // public route 
+    getCleanerDetails, // public route 
+    getCleanersByLocation
 } = require('./handlers/cleaners');
 
 const {
@@ -104,6 +105,8 @@ app.post('/cleaner', cleanerFbAuth, addCleanerDetails);
 app.get('/cleaner', cleanerFbAuth, getAuthenticatedCleaner);
 // mark notification read
 app.post('/cleanerNotifications', cleanerFbAuth, markNotificationRead);
+// get cleaner by location
+app.post('/cleaners', getCleanersByLocation);
 
 // like and unlike route
 // like cleaner
@@ -247,6 +250,16 @@ exports.createNotificationOnReserve = functions
                         });
                 }
             })
+            .catch(err => {
+                console.error(err);
+            });
+    });
+
+exports.removeReservationWhenHistoryCreate = functions
+    .firestore.document('hisstories/{id}')
+    .onCreate(snapshot => {
+        return db.doc(`/reservations/${snapshot.data().customerName}`)
+            .delete()
             .catch(err => {
                 console.error(err);
             });

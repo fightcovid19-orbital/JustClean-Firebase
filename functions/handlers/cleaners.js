@@ -4,7 +4,33 @@ const { reduceUserDetails } = require('../util/validators');
 
 // get all cleaners
 exports.getCleaners = (req, res) => {
-    db.collection('cleaners').get()
+    db.collection('cleaners')
+        .orderBy('likeCount', 'desc')
+        .get()
+        .then(data => {
+            let cleaners = [];
+            data.forEach(doc => {
+                cleaners.push({
+                    cleanerId: doc.id,
+                    cleanerName: doc.data().cleanerName,
+                    hiredCount: doc.data().hiredCount,
+                    likeCount: doc.data().likeCount,
+                    unlikeCount: doc.data().unlikeCount,
+                    createdAt: doc.data().createdAt,
+                    imageUrl: doc.data().imageUrl
+                });
+            });
+            return res.json(cleaners);
+        })
+        .catch(err => console.error(err));
+};
+
+// get all cleaners by location
+exports.getCleanersByLocation = (req, res) => {
+    db.collection('cleaners')
+        .where('location', '==', req.body.location)
+        .orderBy('likeCount', 'desc')
+        .get()
         .then(data => {
             let cleaners = [];
             data.forEach(doc => {

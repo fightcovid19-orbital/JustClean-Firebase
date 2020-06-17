@@ -47,13 +47,19 @@ exports.createReservation = (req, res) => {
 
             newReservation.customerImage =  doc.data().imageUrl;
 
-            return db.collection('reservations')
-                .add(newReservation);
+            return db.doc(`reservations/${req.user.customerName}`)
+                .get();
         })
         .then(doc => {
-            const resReservation = newReservation;
-            resReservation.reservationId = doc.id;
-            res.json(resReservation);
+            if(doc.exists) {
+                return res.status(400).json({general: 'revervation made with other cleaner'});
+            } 
+            
+            return db.doc(`reservations/${req.user.customerName}`)
+                .set(newReservation);
+        })
+        .then(() => {
+            res.json(newReservation);
         })
         .catch(err => {
             res.status(500).json({error: 'something went wrong'});
