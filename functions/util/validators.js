@@ -93,3 +93,13 @@ exports.reduceUserDetails = data => {
 
     return userDetails;
 };
+
+exports.commentValidate = data => {
+    let newComment = {};
+
+    if(!isEmpty(data.body.trim())) {
+        newComment.body = data.body;
+    }
+
+    return newComment;
+}

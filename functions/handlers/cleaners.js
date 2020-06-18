@@ -17,7 +17,8 @@ exports.getCleaners = (req, res) => {
                     likeCount: doc.data().likeCount,
                     unlikeCount: doc.data().unlikeCount,
                     createdAt: doc.data().createdAt,
-                    imageUrl: doc.data().imageUrl
+                    imageUrl: doc.data().imageUrl,
+                    location: doc.data().location
                 });
             });
             return res.json(cleaners);
@@ -41,7 +42,8 @@ exports.getCleanersByLocation = (req, res) => {
                     likeCount: doc.data().likeCount,
                     unlikeCount: doc.data().unlikeCount,
                     createdAt: doc.data().createdAt,
-                    imageUrl: doc.data().imageUrl
+                    imageUrl: doc.data().imageUrl,
+                    location: doc.data().location
                 });
             });
             return res.json(cleaners);

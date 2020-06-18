@@ -10,7 +10,8 @@ const {
     cleanerReplyComment,
     deleteComment,
     deleteCustReply,
-    deleteCleanerReply
+    deleteCleanerReply,
+    updateComment
 } = require('./handlers/comments');
 
 const {
@@ -73,6 +74,9 @@ app.delete('/comment/:commentId', custFbAuth, deleteComment);
 app.delete('/custReply/:custReplyId', custFbAuth, deleteCustReply);
 // delete cleaner reply
 app.delete('/cleanerReply/:cleanerReplyId', cleanerFbAuth, deleteCleanerReply);
+// Update Comment
+app.post('/comment/edit/:commentId', custFbAuth, updateComment);
+
 
 //User route
 // Signup
@@ -164,7 +168,7 @@ exports.deleteNotificationOnCancelLike = functions
             });
     });
 
-/*
+
 exports.createNotificationOnCustReply = functions
     .firestore.document('custReplies/{id}')
     .onCreate(snapshot => {
@@ -187,7 +191,7 @@ exports.createNotificationOnCustReply = functions
                 console.error(err);
             });
     });
-*/
+
 exports.createNotificationOnCleanerReply = functions
     .firestore.document('cleanerReplies/{id}')
     .onCreate(snapshot => {

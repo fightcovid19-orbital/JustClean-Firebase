@@ -1,4 +1,5 @@
 const { db } = require('../util/admin');
+const { commentValidate } = require('../util/validators');
 
 exports.getAllComments = (req, res) => {
     db.collection('comments')
@@ -54,6 +55,21 @@ exports.createComment = (req, res) => {
             res.status(500).json({error: 'something went wrong'});
             console.error(err);
         });       
+};
+
+//update comment
+exports.updateComment = (req, res) => {
+    let newComment = commentValidate(req.body);
+
+    db.doc(`/comments/${req.params.commentId}`)
+        .update(newComment)
+        .then(() => {
+            return res.json({ message: 'Comment edit successfully'});
+        })
+        .catch(err => {
+            console.error(err);
+            return res.status(500).json({error: err.code});
+        });
 };
 
 // get one comment
