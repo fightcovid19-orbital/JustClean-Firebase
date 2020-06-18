@@ -62,7 +62,19 @@ exports.updateComment = (req, res) => {
     let newComment = commentValidate(req.body);
 
     db.doc(`/comments/${req.params.commentId}`)
-        .update(newComment)
+        .get()
+        .then(doc => {
+            if(!doc.exists) {
+                return res.status(404).json({error: 'Comment not found'});
+            }
+            
+            if(doc.data().userHandle !== req.user.customerName) {
+                return res.status(403).json({error: 'Unauthenticated'});
+            } else {
+                return db.doc(`/comments/${req.params.commentId}`)
+                    .update(newComment);
+            }
+        })
         .then(() => {
             return res.json({ message: 'Comment edit successfully'});
         })
