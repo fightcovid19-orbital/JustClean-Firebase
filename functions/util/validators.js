@@ -25,7 +25,7 @@ exports.validateSignupData = data => {
         errors.email = 'Must be a valid email address';
     }
 
-    //Cleaner Name
+    //user Name
     if (isEmpty(data.userName)) {
         errors.userName = "Must not be Empty";
     }
@@ -39,7 +39,7 @@ exports.validateSignupData = data => {
     if (isEmpty(data.type)) {
         errors.type = "Must not be empty";
     } else if (data.type !== 'cleaner' && data.type !== 'customer') {
-        errors.type = "Wrong type of User given";
+        errors.type = "Wrong type of user given";
     }
 
     //password
