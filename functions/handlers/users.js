@@ -113,7 +113,7 @@ exports.login = (req, res) => {
                 return firebase.auth()
                     .signInWithEmailAndPassword(user.email, user.password);
             } else {
-                return res.status(404).json({general: 'Wrong type or doesnt have account yet'});
+                return res.status(404).json({type: 'Wrong type given/ does not have an account yet'});
             }
         })
         .then(data => {

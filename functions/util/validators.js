@@ -25,9 +25,14 @@ exports.validateSignupData = data => {
         errors.email = 'Must be a valid email address';
     }
 
-    //password
-    if (isEmpty(data.password)) {
-        errors.password = "Must not be empty";
+    //Cleaner Name
+    if (isEmpty(data.userName)) {
+        errors.userName = "Must not be Empty";
+    }
+
+    //location
+    if (isEmpty(data.location)) {
+        errors.location = "Must not be empty";
     }
 
     //check type
@@ -37,14 +42,14 @@ exports.validateSignupData = data => {
         errors.type = "Wrong type of User given";
     }
 
+    //password
+    if (isEmpty(data.password)) {
+        errors.password = "Must not be empty";
+    }
+
     // comfirm password
     if (data.confirmPassword !== data.password) {
         errors.confirmPassword = "Password not match";
-    }
-
-    //Cleaner Name
-    if (isEmpty(data.userName)) {
-        errors.userName = "Must not be Empty";
     }
 
     return { 
