@@ -3,6 +3,7 @@ const { commentValidate } = require('../util/validators');
 
 exports.getAllComments = (req, res) => {
     db.collection('comments')
+        .where('commentOn', '==', req.params.cleanerName)
         .orderBy('createdAt', 'desc')
         .get()
         .then(data => {
@@ -13,7 +14,8 @@ exports.getAllComments = (req, res) => {
                     userHandle: doc.data().userHandle,
                     body: doc.data().body,
                     replyCount: doc.data().replyCount,
-                    createdAt: doc.data().createdAt
+                    createdAt: doc.data().createdAt,
+                    userImage: doc.data().userImage
                 });
             });
             return res.json(comments);

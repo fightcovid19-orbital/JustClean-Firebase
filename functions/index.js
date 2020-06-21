@@ -59,7 +59,7 @@ const cleanerFbAuth = require('./util/cleanerFbAuth');
 
 // Comment route
 // get cleanner's all comment
-app.get('/comments', getAllComments);
+app.get('/comments/:cleanerName', getAllComments);
 // create comment
 app.post('/comment/:cleanerName', custFbAuth, createComment);
 // get cleaner's one comment
