@@ -49,9 +49,8 @@ exports.createComment = (req, res) => {
                 .add(newComment);
         })
         .then(doc => {
-            const resComment = newComment;
-            resComment.commentId = doc.id;
-            res.json(resComment);
+            newComment.commentId = doc.id;
+            res.json(newComment);
         })
         .catch(err => {
             res.status(500).json({error: 'something went wrong'});
