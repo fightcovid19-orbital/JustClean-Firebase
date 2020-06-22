@@ -50,6 +50,10 @@ exports.createComment = (req, res) => {
         })
         .then(doc => {
             newComment.commentId = doc.id;
+            return db.doc(`/comments/${doc.id}`)
+                .update({commentId: doc.id});
+        })
+        .then(() => {
             res.json(newComment);
         })
         .catch(err => {
