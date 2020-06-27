@@ -88,6 +88,17 @@ exports.getAuthenticatedCust = (req, res) => {
             data.forEach(doc => {
                 custData.likes.push(doc.data());
             });
+            
+            return db.collection("unlikes")
+                    .where("userHandle", "==", req.user.customerName)
+                    .get();
+        })
+        .then( data => {
+            custData.unlikes = [];
+            data.forEach(doc => {
+                custData.unlikes.push(doc.data());
+            });
+
             return db.collection('notifications')
                 .where('recipient', '==', req.user.customerName)
                 .orderBy('createdAt', 'desc')

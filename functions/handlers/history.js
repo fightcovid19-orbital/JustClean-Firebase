@@ -14,8 +14,6 @@ exports.getHistories = (req, res) => {
                         cleanerImage: doc.data().cleanerImage,
                         cleanerName: doc.data().cleanerName,
                         createdAt: doc.data().createdAt,
-                        cleanerLikeCount: doc.data().cleanerLikeCount,
-                        cleanerUnlikeCount: doc.data().cleanerUnlikeCount
                     });
                 }
             });
@@ -50,8 +48,6 @@ exports.createHistory = (req, res) => {
             }
             
             newHistory.cleanerImage = doc.data().imageUrl;
-            newHistory.cleanerLikeCount = doc.data().likeCount;
-            newHistory.cleanerUnlikeCount = doc.data().unlikeCount;
 
             return doc.ref.update({ hiredCount: doc.data().hiredCount + 1});
         })
@@ -60,9 +56,12 @@ exports.createHistory = (req, res) => {
                 .add(newHistory);
         })
         .then(doc => {
-            const resHistory = newHistory;
-            resHistory.historyId = doc.id;
-            res.json(resHistory);
+            newHistory.historyId = doc.id;
+            return db.doc(`/histories/${doc.id}`)
+                .update({historyId: doc.id});
+        })
+        .then(() => {
+            res.json(newHistory);
         })
         .catch(err => {
             res.status(500).json({error: 'something went wrong'});
