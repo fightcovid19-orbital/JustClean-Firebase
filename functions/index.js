@@ -324,6 +324,17 @@ exports.onCustImageChange = functions
                         const reply = db.doc(`/custReplies/${doc.id}`)
                         batch.update(reply, { userImage: change.after.data().imageUrl });
                     });
+
+                    return db.collection('reservations')
+                        .where('customerName', '==', change.before.data().customerName)
+                        .get();
+                })
+                .then(data => {
+                    data.forEach(doc => {
+                        const reply = db.doc(`/reservations/${doc.data().customerName}`)
+                        batch.update(reply, { userImage: change.after.data().imageUrl });
+                    });
+
                     return batch.commit();
                 });
         } else {
@@ -345,6 +356,17 @@ exports.onCleanerImageChange = functions
                         const reply = db.doc(`/cleanerReplies/${doc.id}`)
                         batch.update(reply, { userImage: change.after.data().imageUrl });
                     });
+
+                    return db.collection('histories')
+                        .where('customerName', '==', change.before.data().customerName)
+                        .get();
+                })
+                .then(data => {
+                    data.forEach(doc => {
+                        const reply = db.doc(`/histories/${doc.id}`)
+                        batch.update(reply, { userImage: change.after.data().imageUrl });
+                    });
+
                     return batch.commit();
                 });
         } else {
