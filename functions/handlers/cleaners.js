@@ -182,7 +182,8 @@ exports.getCleanerDetails = (req, res) => {
             cleanerData.comments = [];
             data.forEach(doc => {
                 cleanerData.comments.push({
-                    body: doc.data().createdAt,
+                    body: doc.data().body,
+                    createdAt: doc.data().createdAt,
                     userHandle: doc.data().userHandle,
                     userImage: doc.data().userImage,
                     replyCount: doc.data.replyCount,

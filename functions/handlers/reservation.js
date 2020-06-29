@@ -46,6 +46,7 @@ exports.createReservation = (req, res) => {
             }
 
             newReservation.customerImage =  doc.data().imageUrl;
+            newReservation.location = doc.data().location;
 
             return db.doc(`reservations/${req.user.customerName}`)
                 .get();
