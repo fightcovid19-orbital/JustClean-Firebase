@@ -110,7 +110,7 @@ app.get('/cleaner', cleanerFbAuth, getAuthenticatedCleaner);
 // mark notification read
 app.post('/cleanerNotifications', cleanerFbAuth, markNotificationRead);
 // get cleaner by location
-app.post('/cleaners', getCleanersByLocation);
+app.post('/locations', getCleanersByLocation);
 
 // like and unlike route
 // like cleaner
