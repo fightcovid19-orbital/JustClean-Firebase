@@ -117,7 +117,15 @@ exports.getAuthenticatedCust = (req, res) => {
                     notificationId: doc.id
                 })
             });
+            return db.doc(`reservations/${req.user.customerName}`)
+                .get()
+        })
+        .then(doc => {
+            if(doc.exists) {
+                custData.reserve = doc.data();
+            }
             return res.json(custData);
+            
         })
         .catch(err => {
             console.error(err);
