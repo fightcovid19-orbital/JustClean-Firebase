@@ -61,16 +61,15 @@ exports.createHistory = (req, res) => {
                 .update({historyId: doc.id});
         })
         .then(() => {
-            return db.doc(`/reservations/${req.params.reserveId}`)
-                .get()
+            return db.doc(`/reservations/${req.params.customerName}`)
+                .get();
         })
         .then(doc => {
             if(!doc.exists) {
                 return res.status(404).json({error: 'No reservation made'});
             }
             
-            return db.doc(`/reservations/${req.params.reserveId}`)
-                .get()
+            return db.doc(`/reservations/${req.params.customerName}`)
                 .delete();
         })
         .then(() => {

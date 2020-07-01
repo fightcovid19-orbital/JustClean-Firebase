@@ -75,11 +75,8 @@ exports.deleteReservation = (req, res) => {
             if(!doc.exists) {
                 return res.status(404).json({error: 'No reservation made'});
             }
-            if (doc.data().customerName !== req.user.customerName) {
-                return res.status(403).json({ error: 'Unauthorized' });
-            } else {
-                return document.delete();
-            }
+            
+            return document.delete();
         })
         .then(() => {
             res.json({ message: ' Reservation deleted successfully' });

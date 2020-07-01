@@ -129,7 +129,8 @@ app.get('/history/:customerName', cleanerFbAuth, createHistory);
 //reserve route
 app.get('/reserves', cleanerFbAuth, getReservation);
 app.get('/reserve/:cleanerName', custFbAuth, createReservation);
-app.delete('/reserve/:reserveId', custFbAuth, deleteReservation);
+app.delete('/custReserve/:reserveId', custFbAuth, deleteReservation);
+app.delete('/cleanerReserve/:reserveId', cleanerFbAuth, deleteReservation);
 
 exports.api = functions.https.onRequest(app);
 
