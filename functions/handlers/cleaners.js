@@ -156,6 +156,20 @@ exports.getAuthenticatedCleaner = (req, res) => {
                     notificationId: doc.id
                 });
             });
+            return db.collection('records')
+                .where('cleanerName', '==', req.user.cleanerName)
+                .get();
+        })
+        .then(data => {
+            cleanerData.records = [];
+            data.forEach(doc => {
+                cleanerData.records.push({
+                    cleanerName: doc.data().cleanerName,
+                    customerName: doc.data().customerName,
+                    customerLocation: doc.data().customerLocation,
+                    customerImage: doc.data().customerImage
+                });
+            });
             return res.json(cleanerData);
         })
         .catch(err => {

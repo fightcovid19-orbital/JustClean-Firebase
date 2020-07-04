@@ -33,6 +33,12 @@ const {
 } = require('./handlers/reservation');
 
 const {
+    getRecords,
+    createRecord,
+    deleteRecord
+} = require('./handlers/records');
+
+const {
     getCleaners,
     uploadCleanerImage,
     addCleanerDetails,
@@ -131,6 +137,11 @@ app.get('/reserves', cleanerFbAuth, getReservation);
 app.get('/reserve/:cleanerName', custFbAuth, createReservation);
 app.delete('/custReserve/:reserveId', custFbAuth, deleteReservation);
 app.delete('/cleanerReserve/:reserveId', cleanerFbAuth, deleteReservation);
+
+//reserve route
+app.get('/records', cleanerFbAuth, getRecords);
+app.get('/record/:customerName', cleanerFbAuth, createRecord);
+app.delete('/record/:recordId', cleanerFbAuth, deleteRecord);
 
 exports.api = functions.https.onRequest(app);
 
