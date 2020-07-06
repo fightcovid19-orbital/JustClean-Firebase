@@ -60,6 +60,13 @@ const {
     getAuthenticatedCust
 } = require('./handlers/customers');
 
+const {
+    getNewChatFromCleaner,
+    getNewChatFromCust,
+    submitMessageToCleaner,
+    submitMessageToCust
+} = require('./handlers/chats');
+
 const custFbAuth = require('./util/custFbAuth');
 const cleanerFbAuth = require('./util/cleanerFbAuth');
 
@@ -142,6 +149,12 @@ app.delete('/cleanerReserve/:reserveId', cleanerFbAuth, deleteReservation);
 app.get('/records', cleanerFbAuth, getRecords);
 app.get('/record/:customerName', cleanerFbAuth, createRecord);
 app.delete('/record/:recordId', cleanerFbAuth, deleteRecord);
+
+// chat route
+app.get('/chat/refresh/:cleanerName', custFbAuth, getNewChatFromCleaner)
+app.get('/chat/refresh/:customerName', cleanerFbAuth, getNewChatFromCust)
+app.post('/chat/:cleanerName', custFbAuth, submitMessageToCleaner)
+app.post('/chat/:customerName', cleanerFbAuth, submitMessageToCust)
 
 exports.api = functions.https.onRequest(app);
 
