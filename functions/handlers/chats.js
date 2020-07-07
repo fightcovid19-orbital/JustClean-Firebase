@@ -2,21 +2,19 @@ const { db } = require('../util/admin');
 
 exports.getNewChatFromCleaner = (req, res) => {
     db.collection('chats')
-        .where('users', 'array-contains', req.user.customerName)
-        .where('users', 'array-contains', req.params.cleanerName)
-        .onSnapshot(async res => {
-            const chat = res.docs.map(_doc => _doc.data());
-            return chat; // slightly different from chat tut, because we need only 1-1 chat
+        .where('users', '==', [req.user.customerName, req.params.cleanerName])
+        .onSnapshot(snapshot => {
+            const chat = snapshot.docs.map(_doc => _doc.data());
+            return res.json(chat); // slightly different from chat tut, because we need only 1-1 chat
         })
 }
 
 exports.getNewChatFromCust = (req, res) => {
     db.collection('chats')
-        .where('users', 'array-contains', req.user.cleanerName)
-        .where('users', 'array-contains', req.params.customerName)
-        .onSnapshot(async res => {
-            const chat = res.docs.map(_doc => _doc.data());
-            return chat;
+        .where('users', '==', [req.params.customerName, req.user.cleanerName])
+        .onSnapshot(snapshot => {
+            const chat = snapshot.docs.map(_doc => _doc.data());
+            return res.json(chat);
         })
 }
 
