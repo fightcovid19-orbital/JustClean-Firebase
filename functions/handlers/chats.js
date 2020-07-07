@@ -1,23 +1,24 @@
 const { db } = require('../util/admin');
+const firebase = require('firebase');
 
 exports.getNewChatFromCleaner = (req, res) => {
-    db.collection('chats')
-        .where('users', 'array-contains', req.user.customerName)
-        .where('users', 'array-contains', req.params.cleanerName)
-        .onSnapshot(async res => {
-            const chat = res.docs.map(_doc => _doc.data());
+    const docKey = this.buildDocKey(req.user.customerName, req.params.cleanerName);
+
+    db.doc(`chats/${docKey}`)
+        .onSnapshot(res => {
+            const chat = res.docs.map(doc => doc.data());
             return chat; // slightly different from chat tut, because we need only 1-1 chat
-        })
+        });
 }
 
 exports.getNewChatFromCust = (req, res) => {
-    db.collection('chats')
-        .where('users', 'array-contains', req.user.cleanerName)
-        .where('users', 'array-contains', req.params.customerName)
-        .onSnapshot(async res => {
-            const chat = res.docs.map(_doc => _doc.data());
+    const docKey = this.buildDocKey(req.params.customerName, req.user.cleanerName);
+
+    db.doc(`chats/${docKey}`)
+        .onSnapshot(res => {
+            const chat = res.docs.map(doc => doc.data());
             return chat;
-        })
+        });
 }
 
 exports.submitMessageToCleaner = (req, res) => {
@@ -26,12 +27,11 @@ exports.submitMessageToCleaner = (req, res) => {
         sender: req.user.customerName,
         message: req.body.message,
         timestamp: Date.now()
-    }
+    };
 
-    const docKey = this.buildDocKey(req.user.customerName, req.params.cleanerName)
+    const docKey = this.buildDocKey(req.user.customerName, req.params.cleanerName);
 
-    db.collection('chats')
-        .doc(docKey)
+    db.doc(`chats/${docKey}`)
         .update({
             messages: firebase.firestore.FieldValue.arrayUnion(
                 newMessage
@@ -46,12 +46,11 @@ exports.submitMessageToCust = (req, res) => {
         sender: req.user.cleanerName,
         message: req.body.message,
         timestamp: Date.now()
-    }
+    };
 
-    const docKey = this.buildDocKey(req.params.customerName, req.user.cleanerName)
+    const docKey = this.buildDocKey(req.params.customerName, req.user.cleanerName);
 
-    db.collection('chats')
-        .doc(docKey)
+    db.doc(`chats/${docKey}`)
         .update({
             messages: firebase.firestore.FieldValue.arrayUnion(
                 newMessage

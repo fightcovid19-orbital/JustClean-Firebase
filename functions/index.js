@@ -151,8 +151,8 @@ app.get('/record/:customerName', cleanerFbAuth, createRecord);
 app.delete('/record/:recordId', cleanerFbAuth, deleteRecord);
 
 // chat route
-app.get('/chat/refresh/:cleanerName', custFbAuth, getNewChatFromCleaner)
-app.get('/chat/refresh/:customerName', cleanerFbAuth, getNewChatFromCust)
+app.get('/custChat/refresh/:cleanerName', custFbAuth, getNewChatFromCleaner)
+app.get('/cleanerChat/refresh/:customerName', cleanerFbAuth, getNewChatFromCust)
 app.post('/chat/:cleanerName', custFbAuth, submitMessageToCleaner)
 app.post('/chat/:customerName', cleanerFbAuth, submitMessageToCust)
 
