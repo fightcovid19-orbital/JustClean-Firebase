@@ -1,21 +1,31 @@
 const { db } = require('../util/admin');
 
+// Always in this order: 
+// 'customerName:cleanerName'
+// buildDocKey = (customerName, cleanerName) => [customerName, cleanerName].join(':');
+
 exports.getNewChatFromCleaner = (req, res) => {
-    db.collection('chats')
-        .where('users', '==', [req.user.customerName, req.params.cleanerName])
-        .onSnapshot(snapshot => {
-            const chat = snapshot.docs.map(_doc => _doc.data());
-            return res.json(chat); // slightly different from chat tut, because we need only 1-1 chat
+
+    const docKey = [req.user.customerName, req.params.cleanerName].join(':')
+
+    db.doc(`chats/${docKey}`)
+        .get()
+        .then(doc => {
+            return res.json(doc.data())
         })
+        .catch(err => console.error(err));
+
 }
 
 exports.getNewChatFromCust = (req, res) => {
-    db.collection('chats')
-        .where('users', '==', [req.params.customerName, req.user.cleanerName])
-        .onSnapshot(snapshot => {
-            const chat = snapshot.docs.map(_doc => _doc.data());
-            return res.json(chat);
+    const docKey = [req.params.customerName, req.user.cleanerName].join(':')
+
+    db.doc(`chats/${docKey}`)
+        .get()
+        .then(doc => {
+            return res.json(doc.data())
         })
+        .catch(err => console.error(err));
 }
 
 exports.submitMessageToCleaner = (req, res) => {
@@ -58,7 +68,4 @@ exports.submitMessageToCust = (req, res) => {
         });
 }
 
-// Always in this order: 
-// 'customerName:cleanerName'
-buildDocKey = (customerName, cleanerName) => [customerName, cleanerName].join(':');
 
