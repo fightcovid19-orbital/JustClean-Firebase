@@ -1,4 +1,5 @@
 const { db } = require('../util/admin');
+const firebase = require('firebase');
 
 // Always in this order: 
 // 'customerName:cleanerName'
@@ -34,12 +35,11 @@ exports.submitMessageToCleaner = (req, res) => {
         sender: req.user.customerName,
         message: req.body.message,
         timestamp: Date.now()
-    }
+    };
 
     const docKey = [req.user.customerName, req.params.cleanerName].join(':')
 
-    db.collection('chats')
-        .doc(docKey)
+    db.doc(`chats/${docKey}`)
         .update({
             messages: firebase.firestore.FieldValue.arrayUnion(
                 newMessage
@@ -54,13 +54,12 @@ exports.submitMessageToCust = (req, res) => {
         sender: req.user.cleanerName,
         message: req.body.message,
         timestamp: Date.now()
-    }
+    };
 
     const docKey = [req.params.customerName, req.user.cleanerName].join(':')
 
 
-    db.collection('chats')
-        .doc(docKey)
+    db.doc(`chats/${docKey}`)
         .update({
             messages: firebase.firestore.FieldValue.arrayUnion(
                 newMessage
