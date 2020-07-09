@@ -1,24 +1,32 @@
 const { db } = require('../util/admin');
 const firebase = require('firebase');
 
+// Always in this order: 
+// 'customerName:cleanerName'
+// buildDocKey = (customerName, cleanerName) => [customerName, cleanerName].join(':');
+
 exports.getNewChatFromCleaner = (req, res) => {
-    const docKey = this.buildDocKey(req.user.customerName, req.params.cleanerName);
+
+    const docKey = [req.user.customerName, req.params.cleanerName].join(':')
 
     db.doc(`chats/${docKey}`)
-        .onSnapshot(res => {
-            const chat = res.docs.map(doc => doc.data());
-            return chat; // slightly different from chat tut, because we need only 1-1 chat
-        });
+        .get()
+        .then(doc => {
+            return res.json(doc.data())
+        })
+        .catch(err => console.error(err));
+
 }
 
 exports.getNewChatFromCust = (req, res) => {
-    const docKey = this.buildDocKey(req.params.customerName, req.user.cleanerName);
+    const docKey = [req.params.customerName, req.user.cleanerName].join(':')
 
     db.doc(`chats/${docKey}`)
-        .onSnapshot(res => {
-            const chat = res.docs.map(doc => doc.data());
-            return chat;
-        });
+        .get()
+        .then(doc => {
+            return res.json(doc.data())
+        })
+        .catch(err => console.error(err));
 }
 
 exports.submitMessageToCleaner = (req, res) => {
@@ -59,7 +67,4 @@ exports.submitMessageToCust = (req, res) => {
         });
 }
 
-// Always in this order: 
-// 'customerName:cleanerName'
-buildDocKey = (customerName, cleanerName) => [customerName, cleanerName].join(':');
 
