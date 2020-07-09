@@ -36,7 +36,7 @@ exports.submitMessageToCleaner = (req, res) => {
         timestamp: Date.now()
     }
 
-    const docKey = this.buildDocKey(req.user.customerName, req.params.cleanerName)
+    const docKey = [req.user.customerName, req.params.cleanerName].join(':')
 
     db.collection('chats')
         .doc(docKey)
@@ -56,7 +56,8 @@ exports.submitMessageToCust = (req, res) => {
         timestamp: Date.now()
     }
 
-    const docKey = this.buildDocKey(req.params.customerName, req.user.cleanerName)
+    const docKey = [req.params.customerName, req.user.cleanerName].join(':')
+
 
     db.collection('chats')
         .doc(docKey)
