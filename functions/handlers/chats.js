@@ -67,6 +67,13 @@ exports.submitMessageToCust = (req, res) => {
                 newMessage
             ),
             receiverHasRead: false
+        })
+        .then(() => {
+            console.log({ general: 'message sent' })
+        })
+        .catch(err => {
+            res.status(500).json({ error: 'something went wrong' });
+            console.error(err);
         });
 }
 
