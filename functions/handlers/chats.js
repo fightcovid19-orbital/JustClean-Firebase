@@ -1,4 +1,4 @@
-const { db } = require('../util/admin');
+const { admin, db } = require('../util/admin');
 const firebase = require('firebase');
 
 // Always in this order: 
@@ -26,55 +26,47 @@ exports.getNewChatFromCust = (req, res) => {
 
 exports.submitMessageToCleaner = (req, res) => {
 
-    const newMessage = {
-        sender: req.user.customerName,
-        message: req.body.message,
-        timestamp: Date.now()
-    };
-
     const docKey = [req.user.customerName, req.params.cleanerName].join(':')
 
     db.doc(`chats/${docKey}`)
         .update({
-            messages: firebase.firestore.FieldValue.arrayUnion(
-                newMessage
-            ),
-            receiverHasRead: true
+            messages: admin.firestore.FieldValue.arrayUnion({
+                sender: req.user.customerName,
+                message: req.body.message,
+                timestamp: new Date().toISOString()
+            }),
+            receiverHasRead: false
         })
         .then(() => {
-            res.json(newMessage);
+            res.json({ general: 'message sent' });
         })
         .catch(err => {
-            res.status(500).json({error: 'something went wrong'});
+            res.status(500).json({ error: 'something went wrong' });
             console.error(err);
         })
 }
 
 exports.submitMessageToCust = (req, res) => {
 
-    const newMessage = {
-        sender: req.user.cleanerName,
-        message: req.body.message,
-        timestamp: Date.now()
-    };
-
     const docKey = [req.params.customerName, req.user.cleanerName].join(':')
-
 
     db.doc(`chats/${docKey}`)
         .update({
-            messages: firebase.firestore.FieldValue.arrayUnion(
-                newMessage
-            ),
+            messages: admin.firestore.FieldValue.arrayUnion({
+                sender: req.user.cleanerName,
+                message: req.body.message,
+                timestamp: new Date().toISOString()
+            }),
             receiverHasRead: false
         })
         .then(() => {
-            console.log({ general: 'message sent' })
+            res.json({ general: 'message sent' });
         })
         .catch(err => {
             res.status(500).json({ error: 'something went wrong' });
             console.error(err);
         });
+
 }
 
 
