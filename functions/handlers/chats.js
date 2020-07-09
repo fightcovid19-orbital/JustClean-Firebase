@@ -39,8 +39,15 @@ exports.submitMessageToCleaner = (req, res) => {
             messages: firebase.firestore.FieldValue.arrayUnion(
                 newMessage
             ),
-            receiverHasRead: false
-        });
+            receiverHasRead: true
+        })
+        .then(() => {
+            res.json(newMessage);
+        })
+        .catch(err => {
+            res.status(500).json({error: 'something went wrong'});
+            console.error(err);
+        })
 }
 
 exports.submitMessageToCust = (req, res) => {
