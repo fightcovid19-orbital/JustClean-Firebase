@@ -10,23 +10,18 @@ exports.getNewChatFromCleaner = (req, res) => {
     const docKey = [req.user.customerName, req.params.cleanerName].join(':')
 
     db.doc(`chats/${docKey}`)
-        .get()
-        .then(doc => {
+        .onSnapshot(doc => {
             return res.json(doc.data())
         })
-        .catch(err => console.error(err));
-
 }
 
 exports.getNewChatFromCust = (req, res) => {
     const docKey = [req.params.customerName, req.user.cleanerName].join(':')
 
     db.doc(`chats/${docKey}`)
-        .get()
-        .then(doc => {
+        .onSnapshot(doc => {
             return res.json(doc.data())
         })
-        .catch(err => console.error(err));
 }
 
 exports.submitMessageToCleaner = (req, res) => {
