@@ -64,7 +64,8 @@ const {
     getNewChatFromCleaner,
     getNewChatFromCust,
     submitMessageToCleaner,
-    submitMessageToCust
+    submitMessageToCust,
+    createNewChatToCleaner
 } = require('./handlers/chats');
 
 const custFbAuth = require('./util/custFbAuth');
@@ -151,6 +152,7 @@ app.get('/record/:customerName', cleanerFbAuth, createRecord);
 app.delete('/record/:recordId', cleanerFbAuth, deleteRecord);
 
 // chat route
+app.get('/chat/new/cleaner/:cleanerName', custFbAuth, createNewChatToCleaner)
 app.get('/chat/refresh/cleaner/:cleanerName', custFbAuth, getNewChatFromCleaner)
 app.get('/chat/refresh/customer/:customerName', cleanerFbAuth, getNewChatFromCust)
 app.post('/chat/cleaner/:cleanerName', custFbAuth, submitMessageToCleaner)

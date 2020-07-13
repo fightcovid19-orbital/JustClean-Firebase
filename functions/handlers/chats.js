@@ -69,4 +69,26 @@ exports.submitMessageToCust = (req, res) => {
 
 }
 
+// cleaner cannot start message to customer
+exports.createNewChatToCleaner = (req, res) => {
+
+    const docKey = [req.user.customerName, req.params.cleanerName].join(':')
+
+    db.collection('chats')
+        .doc(docKey)
+        .set({
+            messages: [],
+            users: [req.user.customerName, req.params.cleanerName],
+            receiverHasRead: false
+        })
+        .then(() => {
+            res.json({ general: 'new chat created!' });
+        })
+        .catch(err => {
+            res.status(500).json({ error: 'something went wrong' });
+            console.error(err);
+        });
+
+}
+
 
