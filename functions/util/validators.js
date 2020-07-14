@@ -37,7 +37,7 @@ exports.validateSignupData = data => {
 
     //check type
     if (isEmpty(data.type)) {
-        errors.type = "Must not be empty";
+        errors.type = "Must choose one of the options";
     } else if (data.type !== 'cleaner' && data.type !== 'customer') {
         errors.type = "Wrong type of user given";
     }
@@ -69,7 +69,7 @@ exports.validateLoginData = data => {
     }
 
     if (isEmpty(data.type)) {
-        errors.type = "Must not be empty";
+        errors.type = "Must choose one of the options";
     } else if (data.type !== 'cleaner' && data.type !== 'customer') {
         errors.type = "Wrong type of User given";
     }

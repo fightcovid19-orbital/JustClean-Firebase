@@ -73,13 +73,22 @@ exports.submitMessageToCust = (req, res) => {
 exports.createNewChatToCleaner = (req, res) => {
 
     const docKey = [req.user.customerName, req.params.cleanerName].join(':')
+    newChat = {
+        messages: [],
+        users: [req.user.customerName, req.params.cleanerName],
+        receiverHasRead: false
+    }
 
-    db.collection('chats')
-        .doc(docKey)
-        .set({
-            messages: [],
-            users: [req.user.customerName, req.params.cleanerName],
-            receiverHasRead: false
+    db.doc(`chats/${docKey}`)
+        .get()
+        .then(doc => {
+            if(doc.exists) {
+                return res.satus(400).json({chat: 'Chat already exists'})
+            } else {
+                return doc.collection('chats')
+                    .add(newChat)
+            }
+            
         })
         .then(() => {
             res.json({ general: 'new chat created!' });
