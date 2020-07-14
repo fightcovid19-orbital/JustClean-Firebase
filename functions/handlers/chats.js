@@ -7,26 +7,26 @@ const firebase = require('firebase');
 
 exports.getNewChatFromCleaner = (req, res) => {
 
-    const docKey = [req.user.customerName, req.params.cleanerName].join(':')
+    const docKey = [req.user.customerName, req.params.cleanerName].join(':');
 
     db.doc(`chats/${docKey}`)
         .onSnapshot(doc => {
             return res.json(doc.data())
-        })
+        });
 }
 
 exports.getNewChatFromCust = (req, res) => {
-    const docKey = [req.params.customerName, req.user.cleanerName].join(':')
+    const docKey = [req.params.customerName, req.user.cleanerName].join(':');
 
     db.doc(`chats/${docKey}`)
         .onSnapshot(doc => {
             return res.json(doc.data())
-        })
+        });
 }
 
 exports.submitMessageToCleaner = (req, res) => {
 
-    const docKey = [req.user.customerName, req.params.cleanerName].join(':')
+    const docKey = [req.user.customerName, req.params.cleanerName].join(':');
 
     db.doc(`chats/${docKey}`)
         .update({
@@ -43,12 +43,12 @@ exports.submitMessageToCleaner = (req, res) => {
         .catch(err => {
             res.status(500).json({ error: 'something went wrong' });
             console.error(err);
-        })
+        });
 }
 
 exports.submitMessageToCust = (req, res) => {
 
-    const docKey = [req.params.customerName, req.user.cleanerName].join(':')
+    const docKey = [req.params.customerName, req.user.cleanerName].join(':');
 
     db.doc(`chats/${docKey}`)
         .update({
@@ -72,23 +72,22 @@ exports.submitMessageToCust = (req, res) => {
 // cleaner cannot start message to customer
 exports.createNewChatToCleaner = (req, res) => {
 
-    const docKey = [req.user.customerName, req.params.cleanerName].join(':')
-    newChat = {
+    const docKey = [req.user.customerName, req.params.cleanerName].join(':');
+    const newChat = {
         messages: [],
         users: [req.user.customerName, req.params.cleanerName],
         receiverHasRead: false
-    }
+    };
 
     db.doc(`chats/${docKey}`)
         .get()
         .then(doc => {
             if(doc.exists) {
-                return res.satus(400).json({chat: 'Chat already exists'})
-            } else {
-                return doc.collection('chats')
-                    .add(newChat)
-            }
+                return res.satus(400).json({chat: 'Chat already exists'});
+            } 
             
+            return db.doc(`chats/${docKey}`)
+                .set(newChat);
         })
         .then(() => {
             res.json({ general: 'new chat created!' });
