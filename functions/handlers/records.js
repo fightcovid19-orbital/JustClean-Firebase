@@ -8,7 +8,7 @@ exports.getRecords = (req, res) => {
             const recordsList = [];
             data.forEach(doc => {
                 if(doc.exists) {
-                    reserveList.push({
+                    recordsList.push({
                         customerImage: doc.data().customerImage,
                         customerName: doc.data().customerName,
                         customerLocation: doc.data().customerLocation

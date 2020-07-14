@@ -119,78 +119,6 @@ exports.getComment = (req, res) => {
         });
 };
 
-// customer reply comment
-exports.custReplyComment = (req, res) => {
-    if(req.body.body.trim() === '') {
-        return res.status(400).json({ reply: 'Must not be empty'});
-    }
-
-    const newReply = {
-        body: req.body.body,
-        createdAt: new Date().toISOString(),
-        commentId: req.params.commentId,
-        userHandle: req.user.customerName,
-        userImage: req.user.imageUrl
-    };
-
-    db.doc(`/comments/${req.params.commentId}`)
-        .get()
-        .then(doc => {
-            if(!doc.exists) {
-                return res.status(404).json({ error: 'Comment not found' });
-            }
-
-            return doc.ref.update({ replyCount: doc.data().replyCount + 1});
-        })
-        .then(() => {
-            return db.collection('custReplies')
-                .add(newReply);
-        })
-        .then(() => {
-            res.json(newReply);
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).json({ error: "Something went wrong" });
-        });
-};
-
-// cleaner reply comment
-exports.cleanerReplyComment = (req, res) => {
-    if(req.body.body.trim() === '') {
-        return res.status(400).json({ reply: 'Must not be empty'});
-    }
-
-    const newReply = {
-        body: req.body.body,
-        createdAt: new Date().toISOString(),
-        commentId: req.params.commentId,
-        userHandle: req.user.cleanerName,
-        userImage: req.user.imageUrl
-    };
-
-    db.doc(`/comments/${req.params.commentId}`)
-        .get()
-        .then(doc => {
-            if(!doc.exists) {
-                return res.status(404).json({ error: 'Comment not found' });
-            }
-
-            return doc.ref.update({ replyCount: doc.data().replyCount + 1});
-        })
-        .then(() => {
-            return db.collection('cleanerReplies')
-                .add(newReply);
-        })
-        .then(() => {
-            res.json(newReply);
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).json({ error: "Something went wrong" });
-        });
-};
-
 // Delete comment
 exports.deleteComment = (req, res) => {
     const document = db.doc(`/comments/${req.params.commentId}`);
@@ -207,52 +135,6 @@ exports.deleteComment = (req, res) => {
         })
         .then(() => {
             res.json({ message: ' Comment deleted successfully' });
-        })
-        .catch(err => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
-        });
-};
-
-// Delete cust Reply
-exports.deleteCustReply = (req, res) => {
-    const document = db.doc(`/custReplies/${req.params.custReplyId}`);
-    document.get()
-        .then(doc => {
-            if(!doc.exists) {
-                return res.status(404).json({error: 'Reply not found'});
-            }
-            if (doc.data().userHandle !== req.user.customerName) {
-                return res.status(403).json({ error: 'Unauthorized' });
-            } else {
-                return document.delete();
-            }
-        })
-        .then(() => {
-            res.json({ message: ' Reply deleted successfully' });
-        })
-        .catch(err => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
-        });
-};
-
-// Delete cleaner Reply
-exports.deleteCleanerReply = (req, res) => {
-    const document = db.doc(`/cleanerReplies/${req.params.cleanerReplyId}`);
-    document.get()
-        .then(doc => {
-            if(!doc.exists) {
-                return res.status(404).json({error: 'Reply not found'});
-            }
-            if (doc.data().userHandle !== req.user.cleanerName) {
-                return res.status(403).json({ error: 'Unauthorized' });
-            } else {
-                return document.delete();
-            }
-        })
-        .then(() => {
-            res.json({ message: 'Reply deleted successfully' });
         })
         .catch(err => {
             console.error(err);
