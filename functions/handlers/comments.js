@@ -101,16 +101,7 @@ exports.getComment = (req, res) => {
 
             commentData = doc.data();
             commentData.commentId = doc.id;
-            return db.collection('replies')
-                .orderBy('createdAt', 'desc')
-                .where('commentId', '==', req.params.commentId)
-                .get();
-        })
-        .then(data => {
-            commentData.replies = [];
-            data.forEach(doc => {
-                commentData.replies.push(doc.data());
-            });
+            
             return res.json(commentData);
         })
         .catch(err => {
