@@ -201,7 +201,8 @@ exports.getCleanerDetails = (req, res) => {
                     userHandle: doc.data().userHandle,
                     userImage: doc.data().userImage,
                     replyCount: doc.data.replyCount,
-                    commentId: doc.id
+                    commentId: doc.id,
+                    commentOn: doc.data().commentOn
                 });
             });
             res.json(cleanerData);
