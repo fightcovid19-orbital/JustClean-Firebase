@@ -79,7 +79,6 @@ exports.cancelLikeCleaner = (req, res) => {
         .then(doc => {
             if (doc.exists) {
                 cleanerData = doc.data();
-                cleanerData.cleanerName = doc.cleanerName;
                 return likeDocument.get();
             } else {
                 return res.status(404).json({ error: "Cleaner does not exists" });
@@ -186,7 +185,6 @@ exports.cancelUnlikeCleaner = (req, res) => {
         .then(doc => {
             if (doc.exists) {
                 cleanerData = doc.data();
-                cleanerData.cleanerName = doc.cleanerName;
                 return unlikeDocument.get();
             } else {
                 return res.status(404).json({ error: "Cleaner does not exists" });
