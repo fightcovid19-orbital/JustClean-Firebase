@@ -14,6 +14,7 @@ exports.getHistories = (req, res) => {
                         cleanerImage: doc.data().cleanerImage,
                         cleanerName: doc.data().cleanerName,
                         createdAt: doc.data().createdAt,
+                        historyId: doc.data().id
                     });
                 }
             });
