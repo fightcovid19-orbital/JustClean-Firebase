@@ -20,7 +20,18 @@ exports.likeCleaner = (req, res) => {
     cleanerDocument.get()
         .then(doc => {
             if (doc.exists) {
-                cleanerData = doc.data();
+                cleanerData = {
+                    likeCount: doc.data().likeCount,
+                    hiredCount: doc.data().hiredCount,
+                    location: doc.data().location,
+                    type: doc.data().type,
+                    email: doc.data().email,
+                    cleanerId: doc.data().cleanerId,
+                    cleanerName: doc.data().cleanerName,
+                    unlikeCount: doc.data().unlikeCount,
+                    imageUrl: doc.data().imageUrl,
+                    createdAt: doc.data().createdAt
+                };
                 return unlikeDocument.get();
             } else {
                 return res.status(404).json({ error: "Cleaner does not exists" });
@@ -78,7 +89,18 @@ exports.cancelLikeCleaner = (req, res) => {
     cleanerDocument.get()
         .then(doc => {
             if (doc.exists) {
-                cleanerData = doc.data();
+                cleanerData = {
+                    likeCount: doc.data().likeCount,
+                    hiredCount: doc.data().hiredCount,
+                    location: doc.data().location,
+                    type: doc.data().type,
+                    email: doc.data().email,
+                    cleanerId: doc.data().cleanerId,
+                    cleanerName: doc.data().cleanerName,
+                    unlikeCount: doc.data().unlikeCount,
+                    imageUrl: doc.data().imageUrl,
+                    createdAt: doc.data().createdAt
+                };
                 return likeDocument.get();
             } else {
                 return res.status(404).json({ error: "Cleaner does not exists" });
@@ -126,7 +148,18 @@ exports.unlikeCleaner = (req, res) => {
     cleanerDocument.get()
         .then(doc => {
             if (doc.exists) {
-                cleanerData = doc.data();
+                cleanerData = {
+                    likeCount: doc.data().likeCount,
+                    hiredCount: doc.data().hiredCount,
+                    location: doc.data().location,
+                    type: doc.data().type,
+                    email: doc.data().email,
+                    cleanerId: doc.data().cleanerId,
+                    cleanerName: doc.data().cleanerName,
+                    unlikeCount: doc.data().unlikeCount,
+                    imageUrl: doc.data().imageUrl,
+                    createdAt: doc.data().createdAt
+                };
                 return likeDocument.get();
             } else {
                 return res.status(404).json({ error: "Cleaner does not exists" });
@@ -184,7 +217,18 @@ exports.cancelUnlikeCleaner = (req, res) => {
     cleanerDocument.get()
         .then(doc => {
             if (doc.exists) {
-                cleanerData = doc.data();
+                cleanerData = {
+                    likeCount: doc.data().likeCount,
+                    hiredCount: doc.data().hiredCount,
+                    location: doc.data().location,
+                    type: doc.data().type,
+                    email: doc.data().email,
+                    cleanerId: doc.data().cleanerId,
+                    cleanerName: doc.data().cleanerName,
+                    unlikeCount: doc.data().unlikeCount,
+                    imageUrl: doc.data().imageUrl,
+                    createdAt: doc.data().createdAt
+                };
                 return unlikeDocument.get();
             } else {
                 return res.status(404).json({ error: "Cleaner does not exists" });
