@@ -14,7 +14,8 @@ exports.getHistories = (req, res) => {
                         cleanerImage: doc.data().cleanerImage,
                         cleanerName: doc.data().cleanerName,
                         createdAt: doc.data().createdAt,
-                        historyId: doc.data().historyId
+                        historyId: doc.data().historyId,
+                        cleanerLocation: doc.data().cleanerLocation
                     });
                 }
             });
@@ -40,6 +41,8 @@ exports.createHistory = (req, res) => {
                 return res.status(404).json({ error: 'Customer does not exist'});
             }
 
+            newHistory.customerLocation = doc.data().location;
+
             return db.doc(`/cleaners/${req.user.cleanerName}`)
                 .get();
         })
@@ -49,6 +52,7 @@ exports.createHistory = (req, res) => {
             }
             
             newHistory.cleanerImage = doc.data().imageUrl;
+            newHistory.cleanerLocation = doc.data().location;
 
             return doc.ref.update({ hiredCount: doc.data().hiredCount + 1});
         })
