@@ -5,7 +5,6 @@ const app = require('express')();
 const {
     getAllComments,
     createComment,
-    getComment,
     deleteComment,
     updateComment
 } = require('./handlers/comments');
@@ -72,10 +71,10 @@ const cleanerFbAuth = require('./util/cleanerFbAuth');
 app.get('/comments/:cleanerName', getAllComments);
 // create comment
 app.post('/comment/:cleanerName', custFbAuth, createComment);
-// get cleaner's one comment
-app.get('/comment/:commentId', getComment);
 // Update Comment
 app.post('/comment/edit/:commentId', custFbAuth, updateComment);
+// Delete Comment
+app.delete('/comment/:commentId', custFbAuth, deleteComment);
 
 
 //User route

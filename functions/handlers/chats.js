@@ -1,5 +1,4 @@
 const { admin, db } = require('../util/admin');
-const firebase = require('firebase');
 
 // Always in this order: 
 // 'customerName:cleanerName'

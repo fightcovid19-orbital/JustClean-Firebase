@@ -90,27 +90,6 @@ exports.updateComment = (req, res) => {
         });
 };
 
-// get one comment
-exports.getComment = (req, res) => {
-    let commentData = {};
-    db.doc(`/comments/${req.params.commentId}`)
-        .get()
-        .then(doc => {
-            if (!doc.exists) {
-                return res.status(404).json({error: 'Comment not Found'})
-            }
-
-            commentData = doc.data();
-            commentData.commentId = doc.id;
-            
-            return res.json(commentData);
-        })
-        .catch(err => {
-            console.error(err);
-            res.status(500).json({ error: err.code});
-        });
-};
-
 // Delete comment
 exports.deleteComment = (req, res) => {
     const document = db.doc(`/comments/${req.params.commentId}`);
@@ -118,8 +97,7 @@ exports.deleteComment = (req, res) => {
         .then(doc => {
             if(!doc.exists) {
                 return res.status(404).json({error: 'Comment not found'});
-            }
-            if (doc.data().userHandle !== req.user.customerName) {
+            } else if (doc.data().userHandle !== req.user.customerName) {
                 return res.status(403).json({ error: 'Unauthorized' });
             } else {
                 return document.delete();
