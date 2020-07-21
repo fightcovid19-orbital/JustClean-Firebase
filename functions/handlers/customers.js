@@ -117,6 +117,24 @@ exports.getAuthenticatedCust = (req, res) => {
                     notificationId: doc.id
                 })
             });
+            return db.collection('chatNotifications')
+                .where('recipient', '==', req.user.customerName)
+                .orderBy('createdAt', 'desc')
+                .get();
+        })
+        .then(data => {
+            custData.chatNotifications =[];
+            data.forEach(doc => {
+                custData.chatNotifications.push({
+                    recipient: doc.data().recipient,
+                    sender: doc.data().sender,
+                    createdAt: doc.data().createdAt,
+                    type: doc.data().type,
+                    read: doc.data().read,
+                    chatNotificationId: doc.data().chatNotificationId
+                })
+            });
+
             return db.doc(`reservations/${req.user.customerName}`)
                 .get()
         })

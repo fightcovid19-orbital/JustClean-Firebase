@@ -13,7 +13,8 @@ const {
     signup,
     login,
     deleteCleaner,
-    markNotificationRead
+    markNotificationRead,
+    markChatNotificationRead
 } = require('./handlers/users');
 
 const {
@@ -94,6 +95,8 @@ app.post('/customer', custFbAuth, addCustDetails);
 app.get('/customer', custFbAuth, getAuthenticatedCust);
 // mark notification read
 app.post('/custNotifications', custFbAuth, markNotificationRead);
+// mark chat notifications read
+app.post('/custChatNotifications', custFbAuth, markChatNotificationRead)
 
 // Cleaner route
 // get all cleaners
@@ -110,6 +113,8 @@ app.get('/cleaner', cleanerFbAuth, getAuthenticatedCleaner);
 app.post('/cleanerNotifications', cleanerFbAuth, markNotificationRead);
 // get cleaner by location
 app.post('/locations', getCleanersByLocation);
+// mark chat notifications read
+app.post('/cleanerChatNotifications', cleanerFbAuth, markChatNotificationRead)
 
 // like and unlike route
 // like cleaner
@@ -426,16 +431,31 @@ exports.createNotificationWhileChat = functions
         const oldMessagesLen = change.before.data().messages.length;
         const newMessagesLen = change.after.data().messages.length;
         if (oldMessagesLen < newMessagesLen) {
-            const newchatNotification = {
+            const receipient = change.after.data().messages[newMessagesLen - 1].receipient;
+            const sender = change.after.data().messages[newMessagesLen - 1].sender
+            const message = change.after.data().messages[newMessagesLen - 1].message
+            const newChatNotification = {
                 createdAt: new Date().toISOString(),
-                recipient: change.after.data().messages[newMessagesLen - 1].receipient,
-                sender: change.after.data().messages[newMessagesLen - 1].sender,
+                recipient: receipient,
+                sender: sender,
                 type: 'chat',
-                read: false
+                read: false,
+                message: message,
+                chatNotificationId: sender + ':' + receipient
             } 
 
-            return db.collection('chatNotifications')
-                .add(newchatNotification)
+            return db.doc(`chatNotifications/${sender}:${receipient}`)
+                .get()
+                .then(doc => {
+                    if(doc.exists) {
+                        return db.doc(`chatNotifications/${sender}:${receipient}`)
+                            .update(newChatNotification)
+                    } else {
+                        return db.doc(`chatNotifications/${sender}:${receipient}`)
+                            .set(newChatNotification)
+                    }
+                })
+                .catch(err => console.error(err));
 
         } else {
             return true;

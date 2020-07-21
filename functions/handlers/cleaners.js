@@ -170,6 +170,26 @@ exports.getAuthenticatedCleaner = (req, res) => {
                     customerImage: doc.data().customerImage
                 });
             });
+
+            return db.collection('chatNotifications')
+                .where('recipient', '==', req.user.cleanerName)
+                .orderBy('createdAt', 'desc')
+                .get();
+        }).
+        then(data => {
+            cleanerData.chatNotifications = [];
+            data.forEach(doc => {
+                cleanerData.chatNotifications.push({
+                    recipient: doc.data().recipient,
+                    sender: doc.data().sender,
+                    createdAt: doc.data().createdAt,
+                    type: doc.data().type,
+                    read: doc.data().read,
+                    message: doc.data().message,
+                    chatNotificationId: doc.data().chatNotificationId
+                });
+            });
+
             return res.json(cleanerData);
         })
         .catch(err => {

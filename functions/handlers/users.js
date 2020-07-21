@@ -183,3 +183,19 @@ exports.markNotificationRead = (req, res) => {
             return res.status(500).json({ error: err.code });
         })
 }
+
+exports.markChatNotificationRead = (req, res) => {
+    let batch = db.batch();
+    req.body.forEach(notificationId => {
+        const chatNotification = db.doc(`chatNotifications/${notificationId}`);
+        batch.update(chatNotification, { read: true });
+    });
+    batch.commit()
+        .then(() => {
+            return res.json({ messgae: "Notifications mark read" })
+        })
+        .catch(err => {
+            console.error(err);
+            return res.status(500).json({ error: err.code });
+        })
+}
