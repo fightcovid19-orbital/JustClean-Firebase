@@ -270,7 +270,7 @@ exports.onCustImageChange = functions
     .firestore
     .document('/customers/{customerName}')
     .onUpdate(change => {
-        if (change.before.data.imageUrl !== change.after.data().imageUrl) {
+        if (change.before.data().imageUrl !== change.after.data().imageUrl) {
             const batch = db.batch();
             return db.collection('comments')
                 .where('userHandle', '==', change.before.data().customerName)
@@ -311,7 +311,7 @@ exports.onCleanerImageChange = functions
     .firestore
     .document('/cleaners/{cleanerName}')
     .onUpdate(change => {
-        if (change.before.data.imageUrl !== change.after.data().imageUrl) {
+        if (change.before.data().imageUrl !== change.after.data().imageUrl) {
             const batch = db.batch();
             return  db.collection('histories')
                 .where('customerName', '==', change.before.data().customerName)
@@ -417,4 +417,27 @@ exports.onCleanerDelete = functions
                 return batch.commit();
             })
             .catch(err => console.error(err));
+    });
+
+exports.createNotificationWhileChat = functions
+    .firestore
+    .document('/chats/{chatId}')
+    .onUpdate(change => {
+        const oldMessagesLen = change.before.data().messages.length;
+        const newMessagesLen = change.after.data().messages.length;
+        if (oldMessagesLen < newMessagesLen) {
+            const newchatNotification = {
+                createdAt: new Date().toISOString(),
+                recipient: change.after.data().messages[newMessagesLen - 1].receipient,
+                sender: change.after.data().messages[newMessagesLen - 1].sender,
+                type: 'chat',
+                read: false
+            } 
+
+            return db.collection('chatNotifications')
+                .add(newchatNotification)
+
+        } else {
+            return true;
+        }
     });

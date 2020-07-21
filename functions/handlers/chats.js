@@ -31,6 +31,7 @@ exports.submitMessageToCleaner = (req, res) => {
         .update({
             messages: admin.firestore.FieldValue.arrayUnion({
                 sender: req.user.customerName,
+                receipient: req.params.cleanerName,
                 message: req.body.message,
                 timestamp: new Date().toISOString()
             }),
@@ -53,6 +54,7 @@ exports.submitMessageToCust = (req, res) => {
         .update({
             messages: admin.firestore.FieldValue.arrayUnion({
                 sender: req.user.cleanerName,
+                receipient: req.params.customerName,
                 message: req.body.message,
                 timestamp: new Date().toISOString()
             }),
