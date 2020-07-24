@@ -137,7 +137,6 @@ app.delete('/custReserve/:reserveId', custFbAuth, deleteReservation);
 app.delete('/cleanerReserve/:reserveId', cleanerFbAuth, deleteReservation);
 
 //reserve route
-app.get('/records', cleanerFbAuth, getRecords);
 app.get('/record/:customerName', cleanerFbAuth, createRecord);
 app.delete('/record/:recordId', cleanerFbAuth, deleteRecord);
 

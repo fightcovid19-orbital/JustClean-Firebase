@@ -1,28 +1,5 @@
 const { db } = require('../util/admin');
 
-exports.getRecords = (req, res) => {
-    db.collection('records')
-        .where('cleanerName', '==' ,req.user.cleanerName)
-        .get()
-        .then(data => {
-            const recordsList = [];
-            data.forEach(doc => {
-                if(doc.exists) {
-                    recordsList.push({
-                        customerImage: doc.data().customerImage,
-                        customerName: doc.data().customerName,
-                        customerLocation: doc.data().customerLocation
-                    });
-                }
-            });
-            return res.json(recordsList);
-        })
-        .catch(err => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
-        });
-};
-
 exports.createRecord = (req, res) => {
     const newRecord = {
         cleanerName: req.user.cleanerName,
